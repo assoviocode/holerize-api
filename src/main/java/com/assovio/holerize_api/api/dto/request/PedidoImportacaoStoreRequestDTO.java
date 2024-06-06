@@ -14,4 +14,7 @@ public class PedidoImportacaoStoreRequestDTO {
     @NotBlank(message = "Senha é obrigatório.")
     private String senha;
 
+    public void setCpf(String cpf){
+        this.cpf = cpf.replace(".", "").replace("-", "").replaceFirst("^0+", "");
+    }
 }
