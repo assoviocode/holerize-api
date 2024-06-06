@@ -32,6 +32,7 @@ public class ModelMapperConfig {
             .<String>addMapping(src -> src.getLog(), (des, value) -> des.setLog(value));
 
         modelMapperStrict.createTypeMap(PedidoImportacao.class, PedidoImportacaoResponseDTO.class)
+            .<Long>addMapping(src -> src.getId(), (des, value) -> des.setId(value))
             .<String>addMapping(src -> src.getCpf(), (des, value) -> des.setCpf(value))
             .<String>addMapping(src -> src.getSenha(), (des, value) -> des.setSenha(value))
             .<EnumStatusImportacao>addMapping(src -> src.getStatus(), (des, value) -> des.setStatus(value))

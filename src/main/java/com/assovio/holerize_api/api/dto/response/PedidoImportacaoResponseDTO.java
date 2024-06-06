@@ -11,6 +11,8 @@ import lombok.Setter;
 @Setter
 public class PedidoImportacaoResponseDTO {
     
+    private Long id;
+
     private String cpf;
 
     private String senha;
