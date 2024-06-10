@@ -3,6 +3,7 @@ package com.assovio.holerize_api.domain.model;
 import java.time.OffsetDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.Column;
@@ -21,6 +22,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "pedido_importacao")
+@SQLRestriction(value = "deleted_at is null")
 public class PedidoImportacao {
     
     @EqualsAndHashCode.Include
@@ -37,6 +39,10 @@ public class PedidoImportacao {
 
     private String log;
 
+    private Integer anoDe;
+
+    private Integer anoAte;
+
     @CreationTimestamp
 	@Column(name = "created_at")
 	private OffsetDateTime createdAt;
@@ -45,6 +51,6 @@ public class PedidoImportacao {
 	@Column(name = "updated_at")
 	private OffsetDateTime updatedAt;
 
-	@Column(name = "delete_at")
+	@Column(name = "deleted_at")
 	private OffsetDateTime deleteAt;
 }
