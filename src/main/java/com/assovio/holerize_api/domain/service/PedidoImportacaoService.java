@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.assovio.holerize_api.domain.dao.PedidoImportacaoDAO;
+import com.assovio.holerize_api.domain.model.EnumStatusImportacao;
 import com.assovio.holerize_api.domain.model.PedidoImportacao;
 
 import jakarta.transaction.Transactional;
@@ -18,7 +19,7 @@ public class PedidoImportacaoService {
     private PedidoImportacaoDAO dao;
 
     public PedidoImportacao GetNext(){
-        return this.dao.findNexWithStatusNOVO();
+        return this.dao.findFirstByStatusOrderByIdAsc(EnumStatusImportacao.NOVO);
     }
 
     public PedidoImportacao GetById(Long id){
