@@ -1,6 +1,7 @@
 package com.assovio.holerize_api.api.dto.response;
 
 import com.assovio.holerize_api.domain.model.EnumStatusImportacao;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -22,4 +23,9 @@ public class PedidoImportacaoResponseDTO {
 
     private String log;
     
+    @JsonProperty("ano_de")
+    private Integer anoDe;
+
+    @JsonProperty("ano_ate")
+    private Integer anoAte;
 }

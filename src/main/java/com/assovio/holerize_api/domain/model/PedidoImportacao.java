@@ -39,6 +39,10 @@ public class PedidoImportacao {
 
     private String log;
 
+    private Integer anoDe;
+
+    private Integer anoAte;
+
     @CreationTimestamp
 	@Column(name = "created_at")
 	private OffsetDateTime createdAt;

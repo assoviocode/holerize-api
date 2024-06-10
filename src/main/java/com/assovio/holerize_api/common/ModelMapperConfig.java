@@ -26,7 +26,9 @@ public class ModelMapperConfig {
 
         modelMapperStrict.createTypeMap(PedidoImportacaoStoreRequestDTO.class, PedidoImportacao.class)
             .<String>addMapping(src -> src.getCpf(), (des, value) -> des.setCpf(value))
-            .<String>addMapping(src -> src.getSenha(), (des, value) -> des.setSenha(value));
+            .<String>addMapping(src -> src.getSenha(), (des, value) -> des.setSenha(value))
+            .<Integer>addMapping(src -> src.getAnoDe(), (des, value) -> des.setAnoDe(value))
+            .<Integer>addMapping(src -> src.getAnoAte(), (des, value) -> des.setAnoAte(value));
 
         modelMapperStrict.createTypeMap(PedidoImportacaoErrorRequestDTO.class, PedidoImportacao.class)
             .<String>addMapping(src -> src.getLog(), (des, value) -> des.setLog(value));
@@ -36,7 +38,9 @@ public class ModelMapperConfig {
             .<String>addMapping(src -> src.getCpf(), (des, value) -> des.setCpf(value))
             .<String>addMapping(src -> src.getSenha(), (des, value) -> des.setSenha(value))
             .<EnumStatusImportacao>addMapping(src -> src.getStatus(), (des, value) -> des.setStatus(value))
-            .<String>addMapping(src -> src.getLog(), (des, value) -> des.setLog(value));
+            .<String>addMapping(src -> src.getLog(), (des, value) -> des.setLog(value))
+            .<Integer>addMapping(src -> src.getAnoDe(), (des, value) -> des.setAnoDe(value))
+            .<Integer>addMapping(src -> src.getAnoAte(), (des, value) -> des.setAnoAte(value));
 
         return modelMapperStrict;
     }
