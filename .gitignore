@@ -55,6 +55,3 @@ build/
 
 ### VS Code ###
 .vscode/
-
-# Arquivos especificos do Spring Boot
-src/main/resources/application.properties
