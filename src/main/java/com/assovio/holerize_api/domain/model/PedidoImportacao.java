@@ -39,6 +39,10 @@ public class PedidoImportacao {
 
     private String log;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_erro")
+    private EnumErrorType tipoErro;
+
     private Integer anoDe;
 
     private Integer anoAte;

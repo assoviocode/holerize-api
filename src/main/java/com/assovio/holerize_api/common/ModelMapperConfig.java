@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import com.assovio.holerize_api.api.dto.request.PedidoImportacaoErrorRequestDTO;
 import com.assovio.holerize_api.api.dto.request.PedidoImportacaoStoreRequestDTO;
 import com.assovio.holerize_api.api.dto.response.PedidoImportacaoResponseDTO;
+import com.assovio.holerize_api.domain.model.EnumErrorType;
 import com.assovio.holerize_api.domain.model.EnumStatusImportacao;
 import com.assovio.holerize_api.domain.model.PedidoImportacao;
 
@@ -31,13 +32,15 @@ public class ModelMapperConfig {
             .<Integer>addMapping(src -> src.getAnoAte(), (des, value) -> des.setAnoAte(value));
 
         modelMapperStrict.createTypeMap(PedidoImportacaoErrorRequestDTO.class, PedidoImportacao.class)
-            .<String>addMapping(src -> src.getLog(), (des, value) -> des.setLog(value));
+            .<String>addMapping(src -> src.getLog(), (des, value) -> des.setLog(value))
+            .<EnumErrorType>addMapping(src -> src.getTipoErro(), (des, value) -> des.setTipoErro(value));
 
         modelMapperStrict.createTypeMap(PedidoImportacao.class, PedidoImportacaoResponseDTO.class)
             .<Long>addMapping(src -> src.getId(), (des, value) -> des.setId(value))
             .<String>addMapping(src -> src.getCpf(), (des, value) -> des.setCpf(value))
             .<String>addMapping(src -> src.getSenha(), (des, value) -> des.setSenha(value))
             .<EnumStatusImportacao>addMapping(src -> src.getStatus(), (des, value) -> des.setStatus(value))
+            .<EnumErrorType>addMapping(src -> src.getTipoErro(), (des, value) -> des.setTipoErro(value))
             .<String>addMapping(src -> src.getLog(), (des, value) -> des.setLog(value))
             .<Integer>addMapping(src -> src.getAnoDe(), (des, value) -> des.setAnoDe(value))
             .<Integer>addMapping(src -> src.getAnoAte(), (des, value) -> des.setAnoAte(value));

@@ -14,6 +14,8 @@ import com.assovio.holerize_api.api.assembler.PedidoImportacaoAssembler;
 import com.assovio.holerize_api.api.dto.request.PedidoImportacaoErrorRequestDTO;
 import com.assovio.holerize_api.api.dto.request.PedidoImportacaoStoreRequestDTO;
 import com.assovio.holerize_api.api.dto.response.PedidoImportacaoResponseDTO;
+import com.assovio.holerize_api.domain.exceptions.BusinessException;
+import com.assovio.holerize_api.domain.exceptions.InvalidOperation;
 import com.assovio.holerize_api.domain.model.EnumStatusImportacao;
 import com.assovio.holerize_api.domain.model.PedidoImportacao;
 import com.assovio.holerize_api.domain.service.PedidoImportacaoService;
@@ -38,11 +40,9 @@ public class PedidoImportacaoController {
     }
 
     @GetMapping("/proximo")
-    public ResponseEntity<PedidoImportacaoResponseDTO> Next(){
+    public ResponseEntity<PedidoImportacaoResponseDTO> Next() throws BusinessException {
         
         PedidoImportacao nextImportacao = pedidoImportacaoService.GetNext();
-        if (nextImportacao == null)
-            return ResponseEntity.notFound().build();
 
         PedidoImportacaoResponseDTO response = pedidoImportacaoAssembler.toDto(nextImportacao);
         nextImportacao.setStatus(EnumStatusImportacao.EM_ANDAMENTO);
@@ -52,12 +52,9 @@ public class PedidoImportacaoController {
     }
 
     @PutMapping("/{id}/finalizado")
-    public ResponseEntity<PedidoImportacaoResponseDTO> Finish(@PathVariable Long id){
+    public ResponseEntity<PedidoImportacaoResponseDTO> Finish(@PathVariable Long id) throws BusinessException{
         
         PedidoImportacao pedidoImportacao = pedidoImportacaoService.GetById(id);
-
-        if (pedidoImportacao == null)
-            return ResponseEntity.notFound().build();
         
         pedidoImportacao.setStatus(EnumStatusImportacao.CONCLUIDO);
         pedidoImportacaoService.Save(pedidoImportacao);
@@ -66,15 +63,12 @@ public class PedidoImportacaoController {
     }
 
     @PutMapping("/{id}/erro")
-    public ResponseEntity<?> Error(@PathVariable Long id, @Valid @RequestBody PedidoImportacaoErrorRequestDTO requestDTO){
+    public ResponseEntity<PedidoImportacaoResponseDTO> Error(@PathVariable Long id, @Valid @RequestBody PedidoImportacaoErrorRequestDTO requestDTO) throws BusinessException {
 
         PedidoImportacao pedidoImportacao = pedidoImportacaoService.GetById(id);
 
-        if (pedidoImportacao == null)
-            return ResponseEntity.notFound().build();
-        
         if (pedidoImportacao.getStatus() != EnumStatusImportacao.EM_ANDAMENTO)
-            return ResponseEntity.badRequest().body("Status da importação inválido para a operação atual!");
+            throw new InvalidOperation("Status da importação inválido para a operação atual!");
 
         pedidoImportacaoAssembler.updateEntity(requestDTO, pedidoImportacao);
         pedidoImportacao.setStatus(EnumStatusImportacao.ERRO);
@@ -84,12 +78,9 @@ public class PedidoImportacaoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> Destroy(@PathVariable Long id){
+    public ResponseEntity<?> Destroy(@PathVariable Long id) throws BusinessException{
 
         PedidoImportacao pedidoImportacao = pedidoImportacaoService.GetById(id);
-
-        if (pedidoImportacao == null)
-            return ResponseEntity.notFound().build();
         
         pedidoImportacaoService.LogicalDelete(pedidoImportacao);
         return ResponseEntity.noContent().build();

@@ -1,5 +1,6 @@
 package com.assovio.holerize_api.api.dto.response;
 
+import com.assovio.holerize_api.domain.model.EnumErrorType;
 import com.assovio.holerize_api.domain.model.EnumStatusImportacao;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -22,6 +23,10 @@ public class PedidoImportacaoResponseDTO {
     private EnumStatusImportacao status;
 
     private String log;
+
+    @Enumerated(EnumType.STRING)
+    @JsonProperty("tipo_erro")
+    private EnumErrorType tipoErro;
     
     @JsonProperty("ano_de")
     private Integer anoDe;

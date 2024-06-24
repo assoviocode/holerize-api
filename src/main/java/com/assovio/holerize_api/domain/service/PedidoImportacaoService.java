@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.assovio.holerize_api.domain.dao.PedidoImportacaoDAO;
+import com.assovio.holerize_api.domain.exceptions.BusinessException;
+import com.assovio.holerize_api.domain.exceptions.RegisterNotFound;
 import com.assovio.holerize_api.domain.model.EnumStatusImportacao;
 import com.assovio.holerize_api.domain.model.PedidoImportacao;
 
@@ -18,12 +20,12 @@ public class PedidoImportacaoService {
     @Autowired
     private PedidoImportacaoDAO dao;
 
-    public PedidoImportacao GetNext(){
-        return this.dao.findFirstByStatusOrderByIdAsc(EnumStatusImportacao.NOVO);
+    public PedidoImportacao GetNext() throws BusinessException {
+        return this.dao.findFirstByStatusOrderByIdAsc(EnumStatusImportacao.NOVO).orElseThrow(() -> new RegisterNotFound("Registro não encontrado"));
     }
 
-    public PedidoImportacao GetById(Long id){
-        return this.dao.findById(id).orElse(null);
+    public PedidoImportacao GetById(Long id) throws BusinessException {
+        return this.dao.findById(id).orElseThrow(() -> new RegisterNotFound("Registro não encontrado"));
     }
 
     @Transactional
