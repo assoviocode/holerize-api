@@ -1,0 +1,1 @@
+alter table pedido_importacao modify column tipo_erro varchar(100) after log;
