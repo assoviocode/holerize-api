@@ -34,8 +34,7 @@ public class PedidoImportacaoController {
     @PostMapping
     public ResponseEntity<PedidoImportacaoResponseDTO> Store(@Valid @RequestBody PedidoImportacaoStoreRequestDTO requestDTO){
         PedidoImportacao newPedidoImportacao = pedidoImportacaoAssembler.toEntity(requestDTO);
-        newPedidoImportacao.setStatus(EnumStatusImportacao.NOVO);
-        pedidoImportacaoService.Save(newPedidoImportacao);
+        newPedidoImportacao = pedidoImportacaoService.Save(newPedidoImportacao);
         return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(newPedidoImportacao));
     }
 
@@ -43,45 +42,34 @@ public class PedidoImportacaoController {
     public ResponseEntity<PedidoImportacaoResponseDTO> Next() throws BusinessException {
         
         PedidoImportacao nextImportacao = pedidoImportacaoService.GetNext();
-
-        PedidoImportacaoResponseDTO response = pedidoImportacaoAssembler.toDto(nextImportacao);
         nextImportacao.setStatus(EnumStatusImportacao.EM_ANDAMENTO);
-        pedidoImportacaoService.Save(nextImportacao);
-
-        return ResponseEntity.ok(response);
+        nextImportacao = pedidoImportacaoService.Save(nextImportacao);
+        return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(nextImportacao));
     }
 
     @PutMapping("/{id}/finalizado")
     public ResponseEntity<PedidoImportacaoResponseDTO> Finish(@PathVariable Long id) throws BusinessException{
-        
         PedidoImportacao pedidoImportacao = pedidoImportacaoService.GetById(id);
-        
         pedidoImportacao.setStatus(EnumStatusImportacao.CONCLUIDO);
-        pedidoImportacaoService.Save(pedidoImportacao);
-
+        pedidoImportacao = pedidoImportacaoService.Save(pedidoImportacao);
         return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(pedidoImportacao));
     }
 
     @PutMapping("/{id}/erro")
     public ResponseEntity<PedidoImportacaoResponseDTO> Error(@PathVariable Long id, @Valid @RequestBody PedidoImportacaoErrorRequestDTO requestDTO) throws BusinessException {
-
         PedidoImportacao pedidoImportacao = pedidoImportacaoService.GetById(id);
-
         if (pedidoImportacao.getStatus() != EnumStatusImportacao.EM_ANDAMENTO)
             throw new InvalidOperation("Status da importação inválido para a operação atual!");
 
-        pedidoImportacaoAssembler.updateEntity(requestDTO, pedidoImportacao);
+        pedidoImportacao = pedidoImportacaoAssembler.updateEntity(requestDTO, pedidoImportacao);
         pedidoImportacao.setStatus(EnumStatusImportacao.ERRO);
-        pedidoImportacaoService.Save(pedidoImportacao);
-
+        pedidoImportacao = pedidoImportacaoService.Save(pedidoImportacao);
         return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(pedidoImportacao));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> Destroy(@PathVariable Long id) throws BusinessException{
-
         PedidoImportacao pedidoImportacao = pedidoImportacaoService.GetById(id);
-        
         pedidoImportacaoService.LogicalDelete(pedidoImportacao);
         return ResponseEntity.noContent().build();
     }

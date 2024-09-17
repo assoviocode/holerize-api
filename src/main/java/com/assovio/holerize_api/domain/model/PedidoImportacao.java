@@ -3,6 +3,8 @@ package com.assovio.holerize_api.domain.model;
 import java.time.OffsetDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -23,6 +25,8 @@ import lombok.Setter;
 @Setter
 @Table(name = "pedido_importacao")
 @SQLRestriction(value = "deleted_at is null")
+@DynamicInsert
+@DynamicUpdate
 public class PedidoImportacao {
     
     @EqualsAndHashCode.Include

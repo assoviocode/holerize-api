@@ -26,6 +26,6 @@ public class PedidoImportacaoStoreRequestDTO {
     private Integer anoAte;
 
     public void setCpf(String cpf){
-        this.cpf = cpf.replace(".", "").replace("-", "").replaceFirst("^0+", "");
+        this.cpf = cpf.replaceAll("[\\.\\-]", "").replaceFirst("^0+", "");
     }
 }
