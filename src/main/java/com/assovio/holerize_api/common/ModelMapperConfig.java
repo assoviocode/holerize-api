@@ -13,9 +13,7 @@ public class ModelMapperConfig {
     @Bean
     public ModelMapper strictModelMapper() {
         ModelMapper modelMapperStrict = new ModelMapper();
-
         TimeZone.setDefault(TimeZone.getTimeZone("America/Sao_Paulo"));
-
         modelMapperStrict.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         return modelMapperStrict;

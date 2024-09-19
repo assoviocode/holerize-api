@@ -17,18 +17,18 @@ import lombok.AllArgsConstructor;
 @Component
 public class PedidoImportacaoAssembler {
     
-    private ModelMapper stricModelMapper;
+    private ModelMapper strictModelMapper;
 
     public PedidoImportacaoResponseDTO toDto(PedidoImportacao pedidoImportacao){
-        return this.stricModelMapper.map(pedidoImportacao, PedidoImportacaoResponseDTO.class);
+        return this.strictModelMapper.map(pedidoImportacao, PedidoImportacaoResponseDTO.class);
     }
 
     public PedidoImportacao toEntity(PedidoImportacaoStoreRequestDTO requestDTO){
-        return this.stricModelMapper.map(requestDTO, PedidoImportacao.class);
+        return this.strictModelMapper.map(requestDTO, PedidoImportacao.class);
     }
 
     public PedidoImportacao updateEntity(PedidoImportacaoErrorRequestDTO requestDTO, PedidoImportacao entity){
-        this.stricModelMapper.map(requestDTO, entity);
+        this.strictModelMapper.map(requestDTO, entity);
         return entity;
     }
 

@@ -34,31 +34,37 @@ public class PedidoImportacao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "cpf", nullable = false)
     private String cpf;
 
+    @Column(name = "senha", nullable = false)
     private String senha;
 
     @Enumerated(EnumType.STRING)
-    private EnumStatusImportacao status;
+    @Column(name = "status", nullable = false)
+    private EnumStatusImportacao status = EnumStatusImportacao.NOVO;
 
+    @Column(name = "log")
     private String log;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_erro")
     private EnumErrorType tipoErro;
 
+    @Column(name = "ano_de", nullable = false)
     private Integer anoDe;
 
+    @Column(name = "ano_ate", nullable = false)
     private Integer anoAte;
 
     @CreationTimestamp
-	@Column(name = "created_at")
+    @Column(name = "created_at")
 	private OffsetDateTime createdAt;
 
 	@UpdateTimestamp
-	@Column(name = "updated_at")
+    @Column(name = "updated_at")
 	private OffsetDateTime updatedAt;
 
-	@Column(name = "deleted_at")
+    @Column(name = "deleted_at")
 	private OffsetDateTime deleteAt;
 }

@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "spring.error.include-stacktrace",
+      "type": "java.lang.String",
+      "description": "include stacktrace behavior"
+    }
+  ]
+}
