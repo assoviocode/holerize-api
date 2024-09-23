@@ -4,6 +4,11 @@
       "name": "spring.error.include-stacktrace",
       "type": "java.lang.String",
       "description": "include stacktrace behavior"
+    },
+    {
+      "name": "api.security.token.secret",
+      "type": "java.lang.String",
+      "description": "secret to generate and decrypt tokens"
     }
   ]
 }

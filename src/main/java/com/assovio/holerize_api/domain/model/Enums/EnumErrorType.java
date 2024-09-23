@@ -1,4 +1,4 @@
-package com.assovio.holerize_api.domain.model;
+package com.assovio.holerize_api.domain.model.Enums;
 
 public enum EnumErrorType {
     CPF_INVALIDO, SENHA_INVALIDA, DUAS_ETAPAS, BLOQUEADO, ACAO_NECESSARIA, DISPOSITIVO_RESTRITO, NIVEL_CONTA, INFORMACOES_DIVERGENTES, EXECUCAO, RECAPTCHA

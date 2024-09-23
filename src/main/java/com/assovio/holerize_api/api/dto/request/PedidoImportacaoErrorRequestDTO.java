@@ -1,6 +1,6 @@
 package com.assovio.holerize_api.api.dto.request;
 
-import com.assovio.holerize_api.domain.model.EnumErrorType;
+import com.assovio.holerize_api.domain.model.Enums.EnumErrorType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.EnumType;

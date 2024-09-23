@@ -17,8 +17,8 @@ import com.assovio.holerize_api.api.dto.response.PedidoImportacaoResponseDTO;
 import com.assovio.holerize_api.domain.exceptions.BusinessException;
 import com.assovio.holerize_api.domain.exceptions.InvalidOperation;
 import com.assovio.holerize_api.domain.exceptions.RegisterNotFound;
-import com.assovio.holerize_api.domain.model.EnumStatusImportacao;
 import com.assovio.holerize_api.domain.model.PedidoImportacao;
+import com.assovio.holerize_api.domain.model.Enums.EnumStatusImportacao;
 import com.assovio.holerize_api.domain.service.PedidoImportacaoService;
 
 import jakarta.validation.Valid;
@@ -33,41 +33,41 @@ public class PedidoImportacaoController {
     private PedidoImportacaoService pedidoImportacaoService;
 
     @PostMapping
-    public ResponseEntity<PedidoImportacaoResponseDTO> Store(@Valid @RequestBody PedidoImportacaoStoreRequestDTO requestDTO) {
+    public ResponseEntity<PedidoImportacaoResponseDTO> store(@Valid @RequestBody PedidoImportacaoStoreRequestDTO requestDTO) {
         PedidoImportacao newPedidoImportacao = pedidoImportacaoAssembler.toEntity(requestDTO);
-        newPedidoImportacao = pedidoImportacaoService.Save(newPedidoImportacao);
+        newPedidoImportacao = pedidoImportacaoService.save(newPedidoImportacao);
         return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(newPedidoImportacao));
     }
 
     @GetMapping("proximo")
-    public ResponseEntity<PedidoImportacaoResponseDTO> Next() throws RegisterNotFound {
-        var optionalPedido = pedidoImportacaoService.GetNext();
+    public ResponseEntity<PedidoImportacaoResponseDTO> next() throws RegisterNotFound {
+        var optionalPedido = pedidoImportacaoService.getNext();
 
         if (!optionalPedido.isPresent())
             throw new RegisterNotFound("Não encontrado próximo registro na fila");
 
         var pedido = optionalPedido.get();
         pedido.setStatus(EnumStatusImportacao.EM_ANDAMENTO);
-        pedido = pedidoImportacaoService.Save(pedido);
+        pedido = pedidoImportacaoService.save(pedido);
         return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(pedido));
     }
 
     @PutMapping("{id}/finalizado")
-    public ResponseEntity<PedidoImportacaoResponseDTO> Finish(@PathVariable Long id) throws RegisterNotFound {
-        var optionalPedido = pedidoImportacaoService.GetById(id);
+    public ResponseEntity<PedidoImportacaoResponseDTO> finish(@PathVariable Long id) throws RegisterNotFound {
+        var optionalPedido = pedidoImportacaoService.getById(id);
 
         if (!optionalPedido.isPresent())
             throw new RegisterNotFound("Pedido de importação não encontrado");
 
         var pedidoImportacao = optionalPedido.get();
         pedidoImportacao.setStatus(EnumStatusImportacao.CONCLUIDO);
-        pedidoImportacao = pedidoImportacaoService.Save(pedidoImportacao);
+        pedidoImportacao = pedidoImportacaoService.save(pedidoImportacao);
         return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(pedidoImportacao));
     }
 
     @PutMapping("{id}/erro")
-    public ResponseEntity<PedidoImportacaoResponseDTO> Error(@PathVariable Long id, @Valid @RequestBody PedidoImportacaoErrorRequestDTO requestDTO) throws BusinessException {
-        var optionalPedido = pedidoImportacaoService.GetById(id);
+    public ResponseEntity<PedidoImportacaoResponseDTO> error(@PathVariable Long id, @Valid @RequestBody PedidoImportacaoErrorRequestDTO requestDTO) throws BusinessException {
+        var optionalPedido = pedidoImportacaoService.getById(id);
 
         if (!optionalPedido.isPresent())
             throw new RegisterNotFound("Pedido de importação não encontrado");
@@ -77,19 +77,19 @@ public class PedidoImportacaoController {
         var pedidoImportacao = optionalPedido.get();
         pedidoImportacao = pedidoImportacaoAssembler.updateEntity(requestDTO, pedidoImportacao);
         pedidoImportacao.setStatus(EnumStatusImportacao.ERRO);
-        pedidoImportacao = pedidoImportacaoService.Save(pedidoImportacao);
+        pedidoImportacao = pedidoImportacaoService.save(pedidoImportacao);
         return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(pedidoImportacao));
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> Destroy(@PathVariable Long id) throws RegisterNotFound {
-        var optionalPedido = pedidoImportacaoService.GetById(id);
+    public ResponseEntity<?> destroy(@PathVariable Long id) throws RegisterNotFound {
+        var optionalPedido = pedidoImportacaoService.getById(id);
         
         if (!optionalPedido.isPresent())
             throw new RegisterNotFound("Pedido de importação não encontrado");
 
         var pedidoImportacao = optionalPedido.get();
-        pedidoImportacaoService.LogicalDelete(pedidoImportacao);
+        pedidoImportacaoService.logicalDelete(pedidoImportacao);
         return ResponseEntity.noContent().build();
     }
 }

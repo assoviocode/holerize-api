@@ -8,6 +8,9 @@ import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.assovio.holerize_api.domain.model.Enums.EnumErrorType;
+import com.assovio.holerize_api.domain.model.Enums.EnumStatusImportacao;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

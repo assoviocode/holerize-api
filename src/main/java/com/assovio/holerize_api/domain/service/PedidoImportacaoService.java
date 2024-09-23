@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.assovio.holerize_api.domain.dao.PedidoImportacaoDAO;
-import com.assovio.holerize_api.domain.model.EnumStatusImportacao;
 import com.assovio.holerize_api.domain.model.PedidoImportacao;
+import com.assovio.holerize_api.domain.model.Enums.EnumStatusImportacao;
 
 import jakarta.transaction.Transactional;
 
@@ -19,16 +19,16 @@ public class PedidoImportacaoService {
     @Autowired
     private PedidoImportacaoDAO dao;
 
-    public Optional<PedidoImportacao> GetNext() {
+    public Optional<PedidoImportacao> getNext() {
         return dao.findFirstByStatusOrderByIdAsc(EnumStatusImportacao.NOVO);
     }
 
-    public Optional<PedidoImportacao> GetById(Long id) {
+    public Optional<PedidoImportacao> getById(Long id) {
         return dao.findById(id);
     }
 
     @Transactional
-    public PedidoImportacao Save(PedidoImportacao pedidoImportacao){
+    public PedidoImportacao save(PedidoImportacao pedidoImportacao){
         return dao.save(pedidoImportacao);
     }
 
@@ -38,8 +38,8 @@ public class PedidoImportacaoService {
     }
 
     @Transactional
-    public void LogicalDelete(PedidoImportacao pedidoImportacao){
+    public void logicalDelete(PedidoImportacao pedidoImportacao){
         pedidoImportacao.setDeleteAt(OffsetDateTime.now().toInstant().atOffset(ZoneOffset.ofHours(3)));
-        Save(pedidoImportacao);
+        save(pedidoImportacao);
     }
 }
