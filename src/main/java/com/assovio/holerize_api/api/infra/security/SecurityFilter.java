@@ -36,7 +36,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             var userDetails = usuarioService.getUserDetailsByLogin(login);
 
             if (userDetails.isPresent()){
-                var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.get().getAuthorities());
+                var authentication = new UsernamePasswordAuthenticationToken(userDetails.get(), null, userDetails.get().getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
