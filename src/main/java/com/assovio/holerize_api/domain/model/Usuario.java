@@ -12,7 +12,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -63,13 +62,6 @@ public class Usuario implements UserDetails {
 
     @Column(name = "deleted_at")
     private OffsetDateTime deletedAt;
-    
-    public Usuario(String nome, String login, String email, String senha) {
-		this.login = login;
-		this.nome = nome;
-		this.email = email;
-		this.senha = new BCryptPasswordEncoder().encode(senha.trim());
-	}
     
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
