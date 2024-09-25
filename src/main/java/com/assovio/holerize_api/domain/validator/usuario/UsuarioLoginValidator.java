@@ -1,4 +1,4 @@
-package com.assovio.holerize_api.domain.validator;
+package com.assovio.holerize_api.domain.validator.usuario;
 
 import com.assovio.holerize_api.api.dto.request.UsuarioRequestDTO;
 

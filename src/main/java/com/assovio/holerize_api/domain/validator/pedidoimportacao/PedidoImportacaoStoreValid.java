@@ -1,4 +1,4 @@
-package com.assovio.holerize_api.domain.validator;
+package com.assovio.holerize_api.domain.validator.pedidoimportacao;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -10,10 +10,10 @@ import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 @Documented
-@Constraint(validatedBy = UsuarioStoreValidator.class)
+@Constraint(validatedBy = PedidoImportacaoStoreValidator.class)
 @Target({ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface UsuarioStoreValid {
+public @interface PedidoImportacaoStoreValid {
     String message() default "Campos inválidos";
 
     Class<?>[] groups() default {};

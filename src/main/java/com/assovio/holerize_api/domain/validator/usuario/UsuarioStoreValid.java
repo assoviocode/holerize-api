@@ -1,4 +1,4 @@
-package com.assovio.holerize_api.domain.validator;
+package com.assovio.holerize_api.domain.validator.usuario;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -10,10 +10,10 @@ import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 @Documented
-@Constraint(validatedBy = UsuarioLoginValidator.class)
+@Constraint(validatedBy = UsuarioStoreValidator.class)
 @Target({ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface UsuarioLoginValid {
+public @interface UsuarioStoreValid {
     String message() default "Campos inválidos";
 
     Class<?>[] groups() default {};

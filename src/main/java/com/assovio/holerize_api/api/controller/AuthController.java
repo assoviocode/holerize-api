@@ -18,8 +18,8 @@ import com.assovio.holerize_api.domain.exceptions.NotAuthorizedException;
 import com.assovio.holerize_api.domain.model.Usuario;
 import com.assovio.holerize_api.domain.service.TokenService;
 import com.assovio.holerize_api.domain.service.UsuarioService;
-import com.assovio.holerize_api.domain.validator.UsuarioLoginValid;
-import com.assovio.holerize_api.domain.validator.UsuarioStoreValid;
+import com.assovio.holerize_api.domain.validator.usuario.UsuarioLoginValid;
+import com.assovio.holerize_api.domain.validator.usuario.UsuarioStoreValid;
 
 import lombok.AllArgsConstructor;
 
@@ -45,7 +45,7 @@ public class AuthController {
 
             if (token != null && !token.isBlank())
                 return ResponseEntity.ok(token);
-                
+
         } catch (RuntimeException ex){
             throw new NotAuthorizedException("Usuário ou senha inválidos!");
         }
