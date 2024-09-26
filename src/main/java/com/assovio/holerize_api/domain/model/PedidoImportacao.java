@@ -54,8 +54,14 @@ public class PedidoImportacao {
     @Column(name = "tipo_erro")
     private EnumErrorType tipoErro;
 
+    @Column(name = "mes_de", nullable = false)
+    private Integer mesDe;
+
     @Column(name = "ano_de", nullable = false)
     private Integer anoDe;
+
+    @Column(name = "mes_ate", nullable = false)
+    private Integer mesAte;
 
     @Column(name = "ano_ate", nullable = false)
     private Integer anoAte;

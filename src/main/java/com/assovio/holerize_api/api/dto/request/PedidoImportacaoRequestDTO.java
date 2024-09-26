@@ -18,8 +18,14 @@ public class PedidoImportacaoRequestDTO {
 
     private String log;
 
+    @JsonProperty("mes_de")
+    private Integer mesDe;
+
     @JsonProperty("ano_de")
     private Integer anoDe;
+
+    @JsonProperty("mes_ate")
+    private Integer mesAte;
     
     @JsonProperty("ano_ate")
     private Integer anoAte;

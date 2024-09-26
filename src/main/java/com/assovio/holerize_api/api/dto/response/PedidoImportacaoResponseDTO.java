@@ -27,9 +27,15 @@ public class PedidoImportacaoResponseDTO {
     @Enumerated(EnumType.STRING)
     @JsonProperty("tipo_erro")
     private EnumErrorType tipoErro;
+
+    @JsonProperty("mes_de")
+    private Integer mesDe;
     
     @JsonProperty("ano_de")
     private Integer anoDe;
+
+    @JsonProperty("mes_ate")
+    private Integer mesAte;
 
     @JsonProperty("ano_ate")
     private Integer anoAte;
