@@ -3,9 +3,9 @@ package com.assovio.holerize_api.api.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -64,7 +64,7 @@ public class PedidoImportacaoController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("{id}/finalizado")
+    @PatchMapping("{id}/finalizado")
     public ResponseEntity<PedidoImportacaoResponseDTO> finish(@PathVariable Long id) throws RegisterNotFound {
         var optionalPedido = pedidoImportacaoService.getById(id);
 
@@ -77,7 +77,7 @@ public class PedidoImportacaoController {
         return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(pedidoImportacao));
     }
 
-    @PutMapping("{id}/erro")
+    @PatchMapping("{id}/erro")
     public ResponseEntity<PedidoImportacaoResponseDTO> error(@PathVariable Long id, @RequestBody @PedidoImportacaoErrorValid PedidoImportacaoRequestDTO requestDTO) throws BusinessException {
         var optionalPedido = pedidoImportacaoService.getById(id);
 

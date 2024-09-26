@@ -30,6 +30,11 @@ public class PedidoImportacaoRequestDTO {
     @JsonProperty("ano_ate")
     private Integer anoAte;
 
+    @JsonProperty("quantidade_anos_baixados")
+    private Integer quantidadeAnosBaixados;
+
+    private byte[] file;
+
     public void setCpf(String cpf){
         this.cpf = cpf.replaceAll("[\\.\\-]", "").replaceFirst("^0+", "");
     }

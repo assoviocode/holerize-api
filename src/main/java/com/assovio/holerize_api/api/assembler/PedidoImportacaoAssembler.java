@@ -30,6 +30,8 @@ public class PedidoImportacaoAssembler {
         .addMappings(mapper -> {
             mapper.skip(PedidoImportacao::setLog);
             mapper.skip(PedidoImportacao::setTipoErro);
+            mapper.skip(PedidoImportacao::setQuantidadeAnosBaixados);
+            mapper.skip(PedidoImportacao::setFile);
         });
         return modelMapper.map(requestDTO, PedidoImportacao.class);
     }
@@ -46,6 +48,8 @@ public class PedidoImportacaoAssembler {
             mapper.skip(PedidoImportacao::setAnoDe);
             mapper.skip(PedidoImportacao::setMesAte);
             mapper.skip(PedidoImportacao::setAnoAte);
+            mapper.skip(PedidoImportacao::setQuantidadeAnosBaixados);
+            mapper.skip(PedidoImportacao::setFile);
         });
         modelMapper.map(requestDTO, entity);
         return entity;

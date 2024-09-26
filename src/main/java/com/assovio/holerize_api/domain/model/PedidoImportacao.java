@@ -18,6 +18,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -65,6 +66,13 @@ public class PedidoImportacao {
 
     @Column(name = "ano_ate", nullable = false)
     private Integer anoAte;
+
+    @Column(name = "quantidade_anos_baixados")
+    private Integer quantidadeAnosBaixados;
+
+    @Lob
+    @Column(name = "file")
+    private byte[] file;
 
     @CreationTimestamp
     @Column(name = "created_at")
