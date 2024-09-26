@@ -4,30 +4,43 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.assovio.holerize_api.api.dto.request.PedidoImportacaoRequestDTO;
 import com.assovio.holerize_api.api.dto.response.PedidoImportacaoResponseDTO;
 import com.assovio.holerize_api.domain.model.PedidoImportacao;
 
-import lombok.AllArgsConstructor;
-
-@AllArgsConstructor
 @Component
 public class PedidoImportacaoAssembler {
-    
+
+    @Autowired
     private ModelMapper strictModelMapper;
 
     public PedidoImportacaoResponseDTO toDto(PedidoImportacao pedidoImportacao){
-        return this.strictModelMapper.map(pedidoImportacao, PedidoImportacaoResponseDTO.class);
+        return strictModelMapper.map(pedidoImportacao, PedidoImportacaoResponseDTO.class);
     }
 
-    public PedidoImportacao toEntity(PedidoImportacaoRequestDTO requestDTO){
-        return this.strictModelMapper.map(requestDTO, PedidoImportacao.class);
+    public PedidoImportacao toStoreEntity(PedidoImportacaoRequestDTO requestDTO){
+        var mapper = strictModelMapper;
+        mapper.createTypeMap(PedidoImportacaoRequestDTO.class, PedidoImportacao.class)
+        .addMappings(m -> {
+            m.skip(PedidoImportacao::setLog);
+            m.skip(PedidoImportacao::setTipoErro);
+        });
+        return mapper.map(requestDTO, PedidoImportacao.class);
     }
 
-    public PedidoImportacao toEntity(PedidoImportacaoRequestDTO requestDTO, PedidoImportacao entity){
-        this.strictModelMapper.map(requestDTO, entity);
+    public PedidoImportacao toErrorEntity(PedidoImportacaoRequestDTO requestDTO, PedidoImportacao entity){
+        var mapper = strictModelMapper;
+        mapper.createTypeMap(PedidoImportacaoRequestDTO.class, PedidoImportacao.class)
+        .addMappings(m -> {
+            m.skip(PedidoImportacao::setCpf);
+            m.skip(PedidoImportacao::setSenha);
+            m.skip(PedidoImportacao::setAnoDe);
+            m.skip(PedidoImportacao::setAnoAte);
+        });
+        mapper.map(requestDTO, entity);
         return entity;
     }
 

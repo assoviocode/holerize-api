@@ -34,7 +34,7 @@ public class PedidoImportacaoController {
 
     @PostMapping
     public ResponseEntity<PedidoImportacaoResponseDTO> store(@RequestBody @PedidoImportacaoStoreValid PedidoImportacaoRequestDTO requestDTO) {
-        PedidoImportacao newPedidoImportacao = pedidoImportacaoAssembler.toEntity(requestDTO);
+        PedidoImportacao newPedidoImportacao = pedidoImportacaoAssembler.toStoreEntity(requestDTO);
         newPedidoImportacao = pedidoImportacaoService.save(newPedidoImportacao);
         return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(newPedidoImportacao));
     }
@@ -87,7 +87,7 @@ public class PedidoImportacaoController {
             throw new InvalidOperation("Status da importação inválido para a operação atual!");
 
         var pedidoImportacao = optionalPedido.get();
-        pedidoImportacao = pedidoImportacaoAssembler.toEntity(requestDTO, pedidoImportacao);
+        pedidoImportacao = pedidoImportacaoAssembler.toErrorEntity(requestDTO, pedidoImportacao);
         pedidoImportacao.setStatus(EnumStatusImportacao.ERRO);
         pedidoImportacao = pedidoImportacaoService.save(pedidoImportacao);
         return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(pedidoImportacao));
