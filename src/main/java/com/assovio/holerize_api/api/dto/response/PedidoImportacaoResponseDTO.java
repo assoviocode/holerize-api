@@ -4,8 +4,6 @@ import com.assovio.holerize_api.domain.model.Enums.EnumErrorType;
 import com.assovio.holerize_api.domain.model.Enums.EnumStatusImportacao;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,12 +17,10 @@ public class PedidoImportacaoResponseDTO {
 
     private String senha;
 
-    @Enumerated(EnumType.STRING)
     private EnumStatusImportacao status;
 
     private String log;
 
-    @Enumerated(EnumType.STRING)
     @JsonProperty("tipo_erro")
     private EnumErrorType tipoErro;
 

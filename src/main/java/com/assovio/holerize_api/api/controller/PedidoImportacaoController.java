@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.assovio.holerize_api.api.assembler.PedidoImportacaoAssembler;
 import com.assovio.holerize_api.api.dto.request.PedidoImportacaoRequestDTO;
 import com.assovio.holerize_api.api.dto.response.PedidoImportacaoResponseDTO;
-import com.assovio.holerize_api.domain.exceptions.BusinessException;
+import com.assovio.holerize_api.api.infra.security.AESUtil;
 import com.assovio.holerize_api.domain.exceptions.InvalidOperation;
 import com.assovio.holerize_api.domain.exceptions.RegisterNotFound;
 import com.assovio.holerize_api.domain.model.PedidoImportacao;
@@ -35,16 +35,20 @@ public class PedidoImportacaoController {
     
     private PedidoImportacaoAssembler pedidoImportacaoAssembler;
     private PedidoImportacaoService pedidoImportacaoService;
+    private AESUtil passwordEncoder;
 
     @PostMapping
-    public ResponseEntity<PedidoImportacaoResponseDTO> store(@RequestBody @PedidoImportacaoStoreValid PedidoImportacaoRequestDTO requestDTO) {
+    public ResponseEntity<PedidoImportacaoResponseDTO> store(@RequestBody @PedidoImportacaoStoreValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
         PedidoImportacao newPedidoImportacao = pedidoImportacaoAssembler.toStoreEntity(requestDTO);
+        newPedidoImportacao.setSenha(passwordEncoder.encrypt(newPedidoImportacao.getSenha()));
         newPedidoImportacao = pedidoImportacaoService.save(newPedidoImportacao);
-        return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(newPedidoImportacao));
+        var dto = pedidoImportacaoAssembler.toDto(newPedidoImportacao);
+        dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("proximo")
-    public ResponseEntity<PedidoImportacaoResponseDTO> next() throws RegisterNotFound {
+    public ResponseEntity<PedidoImportacaoResponseDTO> next() throws Exception {
         var optionalPedido = pedidoImportacaoService.getNext();
 
         if (!optionalPedido.isPresent())
@@ -53,11 +57,13 @@ public class PedidoImportacaoController {
         var pedido = optionalPedido.get();
         pedido.setStatus(EnumStatusImportacao.EM_ANDAMENTO);
         pedido = pedidoImportacaoService.save(pedido);
-        return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(pedido));
+        var dto = pedidoImportacaoAssembler.toDto(pedido);
+        dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
+        return ResponseEntity.ok(dto);
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<PedidoImportacaoResponseDTO> update(@PathVariable Long id, @RequestBody @PedidoImportacaoUpdateValid PedidoImportacaoRequestDTO requestDTO) throws RegisterNotFound {
+    public ResponseEntity<PedidoImportacaoResponseDTO> update(@PathVariable Long id, @RequestBody @PedidoImportacaoUpdateValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
         var optionalPedido = pedidoImportacaoService.getById(id);
 
         if (!optionalPedido.isPresent())
@@ -65,8 +71,11 @@ public class PedidoImportacaoController {
 
         var pedidoImportacao = optionalPedido.get();
         pedidoImportacao = pedidoImportacaoAssembler.toUpdateEntity(requestDTO, pedidoImportacao);
+        pedidoImportacao.setSenha(passwordEncoder.encrypt(pedidoImportacao.getSenha()));
         pedidoImportacao = pedidoImportacaoService.save(pedidoImportacao);
-        return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(pedidoImportacao));
+        var dto = pedidoImportacaoAssembler.toDto(pedidoImportacao);
+        dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
+        return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping("{id}")
@@ -82,7 +91,7 @@ public class PedidoImportacaoController {
     }
 
     @PatchMapping("{id}/finalizado")
-    public ResponseEntity<PedidoImportacaoResponseDTO> finish(@PathVariable Long id, @RequestBody @PedidoImportacaoFinishValid PedidoImportacaoRequestDTO requestDTO) throws BusinessException {
+    public ResponseEntity<PedidoImportacaoResponseDTO> finish(@PathVariable Long id, @RequestBody @PedidoImportacaoFinishValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
         var optionalPedido = pedidoImportacaoService.getById(id);
 
         if (!optionalPedido.isPresent())
@@ -94,11 +103,13 @@ public class PedidoImportacaoController {
         pedidoImportacao = pedidoImportacaoAssembler.toFinishEntity(requestDTO, pedidoImportacao);
         pedidoImportacao.setStatus(EnumStatusImportacao.CONCLUIDO);
         pedidoImportacao = pedidoImportacaoService.save(pedidoImportacao);
-        return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(pedidoImportacao));
+        var dto = pedidoImportacaoAssembler.toDto(pedidoImportacao);
+        dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
+        return ResponseEntity.ok(dto);
     }
 
     @PatchMapping("{id}/erro")
-    public ResponseEntity<PedidoImportacaoResponseDTO> error(@PathVariable Long id, @RequestBody @PedidoImportacaoErrorValid PedidoImportacaoRequestDTO requestDTO) throws BusinessException {
+    public ResponseEntity<PedidoImportacaoResponseDTO> error(@PathVariable Long id, @RequestBody @PedidoImportacaoErrorValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
         var optionalPedido = pedidoImportacaoService.getById(id);
 
         if (!optionalPedido.isPresent())
@@ -110,6 +121,8 @@ public class PedidoImportacaoController {
         pedidoImportacao = pedidoImportacaoAssembler.toErrorEntity(requestDTO, pedidoImportacao);
         pedidoImportacao.setStatus(EnumStatusImportacao.ERRO);
         pedidoImportacao = pedidoImportacaoService.save(pedidoImportacao);
-        return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(pedidoImportacao));
+        var dto = pedidoImportacaoAssembler.toDto(pedidoImportacao);
+        dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
+        return ResponseEntity.ok(dto);
     }
 }

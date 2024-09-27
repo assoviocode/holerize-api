@@ -16,4 +16,7 @@ spring:
   output.ansi.enabled: ALWAYS
   error.include-stacktrace: never
 
-api.security.token.secret: ${JWT_SECRET:4SS0V10H0L3R1Z3HMAC256}
+api:
+  security:
+    token.secret: ${JWT_SECRET:4SS0V10H0L3R1Z3HMAC256}
+    encryption.secret: ${ENCRYPTION_SECRET:4RMlZCy7vsBplzfiR3C63A==}

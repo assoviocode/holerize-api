@@ -37,6 +37,20 @@ public class PedidoImportacaoStoreValidator implements ConstraintValidator<Pedid
                 .addConstraintViolation();
             
             return false;
+        } else if (value.getMesDe() == null){
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate("O campo mes_de não pode ser nulo")
+                .addPropertyNode("mes_de")
+                .addConstraintViolation();
+            
+            return false;
+        } else if (value.getMesAte() == null){
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate("O campo mes_ate não pode ser nulo")
+                .addPropertyNode("mes_ate")
+                .addConstraintViolation();
+            
+            return false;
         }
         
         return true;
