@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,9 +21,12 @@ import com.assovio.holerize_api.domain.model.PedidoImportacao;
 import com.assovio.holerize_api.domain.model.Enums.EnumStatusImportacao;
 import com.assovio.holerize_api.domain.service.PedidoImportacaoService;
 import com.assovio.holerize_api.domain.validator.pedidoimportacao.PedidoImportacaoErrorValid;
+import com.assovio.holerize_api.domain.validator.pedidoimportacao.PedidoImportacaoFinishValid;
 import com.assovio.holerize_api.domain.validator.pedidoimportacao.PedidoImportacaoStoreValid;
+import com.assovio.holerize_api.domain.validator.pedidoimportacao.PedidoImportacaoUpdateValid;
 
 import lombok.AllArgsConstructor;
+
 
 @AllArgsConstructor
 @RestController
@@ -52,6 +56,19 @@ public class PedidoImportacaoController {
         return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(pedido));
     }
 
+    @PutMapping("{id}")
+    public ResponseEntity<PedidoImportacaoResponseDTO> update(@PathVariable Long id, @RequestBody @PedidoImportacaoUpdateValid PedidoImportacaoRequestDTO requestDTO) throws RegisterNotFound {
+        var optionalPedido = pedidoImportacaoService.getById(id);
+
+        if (!optionalPedido.isPresent())
+            throw new RegisterNotFound("Pedido de importação não encontrado");
+
+        var pedidoImportacao = optionalPedido.get();
+        pedidoImportacao = pedidoImportacaoAssembler.toUpdateEntity(requestDTO, pedidoImportacao);
+        pedidoImportacao = pedidoImportacaoService.save(pedidoImportacao);
+        return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(pedidoImportacao));
+    }
+
     @DeleteMapping("{id}")
     public ResponseEntity<?> destroy(@PathVariable Long id) throws RegisterNotFound {
         var optionalPedido = pedidoImportacaoService.getById(id);
@@ -65,13 +82,16 @@ public class PedidoImportacaoController {
     }
 
     @PatchMapping("{id}/finalizado")
-    public ResponseEntity<PedidoImportacaoResponseDTO> finish(@PathVariable Long id) throws RegisterNotFound {
+    public ResponseEntity<PedidoImportacaoResponseDTO> finish(@PathVariable Long id, @RequestBody @PedidoImportacaoFinishValid PedidoImportacaoRequestDTO requestDTO) throws BusinessException {
         var optionalPedido = pedidoImportacaoService.getById(id);
 
         if (!optionalPedido.isPresent())
             throw new RegisterNotFound("Pedido de importação não encontrado");
+        else if (optionalPedido.get().getStatus() != EnumStatusImportacao.EM_ANDAMENTO)
+            throw new InvalidOperation("Status da importação inválido para a operação atual!");
 
         var pedidoImportacao = optionalPedido.get();
+        pedidoImportacao = pedidoImportacaoAssembler.toFinishEntity(requestDTO, pedidoImportacao);
         pedidoImportacao.setStatus(EnumStatusImportacao.CONCLUIDO);
         pedidoImportacao = pedidoImportacaoService.save(pedidoImportacao);
         return ResponseEntity.ok(pedidoImportacaoAssembler.toDto(pedidoImportacao));

@@ -19,7 +19,13 @@ public class PedidoImportacaoAssembler {
         ModelMapper modelMapper = new ModelMapper();
         TimeZone.setDefault(TimeZone.getTimeZone("America/Sao_Paulo"));
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        return modelMapper.map(pedidoImportacao, PedidoImportacaoResponseDTO.class);
+        modelMapper.createTypeMap(PedidoImportacao.class, PedidoImportacaoResponseDTO.class)
+        .addMappings(mapper -> {
+            mapper.skip(PedidoImportacaoResponseDTO::setFile);
+        });
+        var dto = modelMapper.map(pedidoImportacao, PedidoImportacaoResponseDTO.class);
+        dto.setFile(pedidoImportacao.getFile());
+        return dto;
     }
 
     public PedidoImportacao toStoreEntity(PedidoImportacaoRequestDTO requestDTO){
@@ -28,6 +34,7 @@ public class PedidoImportacaoAssembler {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         modelMapper.createTypeMap(PedidoImportacaoRequestDTO.class, PedidoImportacao.class)
         .addMappings(mapper -> {
+            mapper.skip(PedidoImportacao::setStatus);
             mapper.skip(PedidoImportacao::setLog);
             mapper.skip(PedidoImportacao::setTipoErro);
             mapper.skip(PedidoImportacao::setQuantidadeAnosBaixados);
@@ -44,6 +51,7 @@ public class PedidoImportacaoAssembler {
         .addMappings(mapper -> {
             mapper.skip(PedidoImportacao::setCpf);
             mapper.skip(PedidoImportacao::setSenha);
+            mapper.skip(PedidoImportacao::setStatus);
             mapper.skip(PedidoImportacao::setMesDe);
             mapper.skip(PedidoImportacao::setAnoDe);
             mapper.skip(PedidoImportacao::setMesAte);
@@ -52,6 +60,41 @@ public class PedidoImportacaoAssembler {
             mapper.skip(PedidoImportacao::setFile);
         });
         modelMapper.map(requestDTO, entity);
+        return entity;
+    }
+
+    public PedidoImportacao toFinishEntity(PedidoImportacaoRequestDTO requestDTO, PedidoImportacao entity){
+        ModelMapper modelMapper = new ModelMapper();
+        TimeZone.setDefault(TimeZone.getTimeZone("America/Sao_Paulo"));
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.createTypeMap(PedidoImportacaoRequestDTO.class, PedidoImportacao.class)
+        .addMappings(mapper -> {
+            mapper.skip(PedidoImportacao::setCpf);
+            mapper.skip(PedidoImportacao::setSenha);
+            mapper.skip(PedidoImportacao::setStatus);
+            mapper.skip(PedidoImportacao::setMesDe);
+            mapper.skip(PedidoImportacao::setAnoDe);
+            mapper.skip(PedidoImportacao::setMesAte);
+            mapper.skip(PedidoImportacao::setAnoAte);
+            mapper.skip(PedidoImportacao::setLog);
+            mapper.skip(PedidoImportacao::setTipoErro);
+            mapper.skip(PedidoImportacao::setFile);
+        });
+        modelMapper.map(requestDTO, entity);
+        entity.setFile(requestDTO.getFile());
+        return entity;
+    }
+
+    public PedidoImportacao toUpdateEntity(PedidoImportacaoRequestDTO requestDTO, PedidoImportacao entity){
+        ModelMapper modelMapper = new ModelMapper();
+        TimeZone.setDefault(TimeZone.getTimeZone("America/Sao_Paulo"));
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.createTypeMap(PedidoImportacaoRequestDTO.class, PedidoImportacao.class)
+        .addMappings(mapper -> {
+            mapper.skip(PedidoImportacao::setFile);
+        });
+        modelMapper.map(requestDTO, entity);
+        entity.setFile(requestDTO.getFile());
         return entity;
     }
 

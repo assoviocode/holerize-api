@@ -1,6 +1,7 @@
 package com.assovio.holerize_api.api.dto.request;
 
 import com.assovio.holerize_api.domain.model.Enums.EnumErrorType;
+import com.assovio.holerize_api.domain.model.Enums.EnumStatusImportacao;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
@@ -12,6 +13,7 @@ public class PedidoImportacaoRequestDTO {
     
     private String cpf;
     private String senha;
+    private EnumStatusImportacao status;
 
     @JsonProperty("tipo_erro")
     private EnumErrorType tipoErro;
