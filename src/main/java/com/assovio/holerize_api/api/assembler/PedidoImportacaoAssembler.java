@@ -6,10 +6,12 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import com.assovio.holerize_api.api.dto.request.PedidoImportacaoRequestDTO;
 import com.assovio.holerize_api.api.dto.response.PedidoImportacaoResponseDTO;
+import com.assovio.holerize_api.api.dto.response.PedidoImportacaoResponseSimpleDTO;
 import com.assovio.holerize_api.domain.model.PedidoImportacao;
 
 @Component
@@ -26,6 +28,13 @@ public class PedidoImportacaoAssembler {
         var dto = modelMapper.map(pedidoImportacao, PedidoImportacaoResponseDTO.class);
         dto.setFile(pedidoImportacao.getFile());
         return dto;
+    }
+
+    public PedidoImportacaoResponseSimpleDTO toSimpleDTO(PedidoImportacao pedidoImportacao){
+        ModelMapper modelMapper = new ModelMapper();
+        TimeZone.setDefault(TimeZone.getTimeZone("America/Sao_Paulo"));
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        return modelMapper.map(pedidoImportacao, PedidoImportacaoResponseSimpleDTO.class);
     }
 
     public PedidoImportacao toStoreEntity(PedidoImportacaoRequestDTO requestDTO){
@@ -100,5 +109,9 @@ public class PedidoImportacaoAssembler {
 
     public List<PedidoImportacaoResponseDTO> toCollectionDto(List<PedidoImportacao> entityList){
         return entityList.stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+    public Page<PedidoImportacaoResponseSimpleDTO> toPageSimpleDTO(Page<PedidoImportacao> pedidoImportacaoPage) {
+        return pedidoImportacaoPage.map(this::toSimpleDTO);
     }
 }

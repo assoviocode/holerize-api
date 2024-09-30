@@ -1,5 +1,11 @@
 package com.assovio.holerize_api.api.controller;
 
+import java.util.Date;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.assovio.holerize_api.api.assembler.PedidoImportacaoAssembler;
 import com.assovio.holerize_api.api.dto.request.PedidoImportacaoRequestDTO;
 import com.assovio.holerize_api.api.dto.response.PedidoImportacaoResponseDTO;
+import com.assovio.holerize_api.api.dto.response.PedidoImportacaoResponseSimpleDTO;
 import com.assovio.holerize_api.api.infra.security.AESUtil;
 import com.assovio.holerize_api.domain.exceptions.InvalidOperation;
 import com.assovio.holerize_api.domain.exceptions.RegisterNotFound;
@@ -26,6 +33,8 @@ import com.assovio.holerize_api.domain.validator.pedidoimportacao.PedidoImportac
 import com.assovio.holerize_api.domain.validator.pedidoimportacao.PedidoImportacaoUpdateValid;
 
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @AllArgsConstructor
@@ -36,6 +45,20 @@ public class PedidoImportacaoController {
     private PedidoImportacaoAssembler pedidoImportacaoAssembler;
     private PedidoImportacaoService pedidoImportacaoService;
     private AESUtil passwordEncoder;
+
+    @GetMapping
+    public ResponseEntity<Page<PedidoImportacaoResponseSimpleDTO>> index(
+        @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+        @RequestParam(name = "size", required = false, defaultValue = "30") Integer size,
+        @RequestParam(name = "status", required = false) EnumStatusImportacao status,
+        @RequestParam(name = "data_inicial", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataInicial
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PedidoImportacao> pedidoImportacaoPage = pedidoImportacaoService.getByFilters(status, dataInicial, pageable);
+        Page<PedidoImportacaoResponseSimpleDTO> response = pedidoImportacaoAssembler.toPageSimpleDTO(pedidoImportacaoPage);
+        return ResponseEntity.ok(response);
+    }
+    
 
     @PostMapping
     public ResponseEntity<PedidoImportacaoResponseDTO> store(@RequestBody @PedidoImportacaoStoreValid PedidoImportacaoRequestDTO requestDTO) throws Exception {

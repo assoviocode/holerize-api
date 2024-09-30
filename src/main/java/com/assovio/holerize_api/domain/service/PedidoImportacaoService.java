@@ -2,9 +2,12 @@ package com.assovio.holerize_api.domain.service;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Date;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.assovio.holerize_api.domain.dao.PedidoImportacaoDAO;
@@ -41,5 +44,10 @@ public class PedidoImportacaoService {
     public void logicalDelete(PedidoImportacao pedidoImportacao){
         pedidoImportacao.setDeleteAt(OffsetDateTime.now().toInstant().atOffset(ZoneOffset.ofHours(3)));
         save(pedidoImportacao);
+    }
+
+    public Page<PedidoImportacao> getByFilters(EnumStatusImportacao status, Date dataInicial,
+            Pageable pageable) {
+        return dao.findByFilters(status, dataInicial, pageable);
     }
 }
