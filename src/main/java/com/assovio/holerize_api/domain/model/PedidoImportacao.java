@@ -1,12 +1,8 @@
 package com.assovio.holerize_api.domain.model;
 
-import java.time.OffsetDateTime;
-
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLRestriction;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import com.assovio.holerize_api.domain.model.Enums.EnumErrorType;
 import com.assovio.holerize_api.domain.model.Enums.EnumStatusImportacao;
@@ -24,15 +20,15 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
 @Getter
 @Setter
+@Entity
 @Table(name = "pedido_importacao")
 @SQLRestriction(value = "deleted_at is null")
 @DynamicInsert
 @DynamicUpdate
-public class PedidoImportacao {
-    
+public class PedidoImportacao extends TimeStamp {
+
     @EqualsAndHashCode.Include
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -74,14 +70,4 @@ public class PedidoImportacao {
     @Column(name = "file")
     private byte[] file;
 
-    @CreationTimestamp
-    @Column(name = "created_at")
-	private OffsetDateTime createdAt;
-
-	@UpdateTimestamp
-    @Column(name = "updated_at")
-	private OffsetDateTime updatedAt;
-
-    @Column(name = "deleted_at")
-	private OffsetDateTime deleteAt;
 }

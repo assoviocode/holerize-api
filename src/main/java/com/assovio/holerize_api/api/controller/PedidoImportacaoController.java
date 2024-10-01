@@ -46,6 +46,16 @@ public class PedidoImportacaoController {
     private PedidoImportacaoService pedidoImportacaoService;
     private AESUtil passwordEncoder;
 
+    @PostMapping
+    public ResponseEntity<PedidoImportacaoResponseDTO> store(@RequestBody @PedidoImportacaoStoreValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
+        PedidoImportacao newPedidoImportacao = pedidoImportacaoAssembler.toStoreEntity(requestDTO);
+        newPedidoImportacao.setSenha(passwordEncoder.encrypt(newPedidoImportacao.getSenha()));
+        newPedidoImportacao = pedidoImportacaoService.save(newPedidoImportacao);
+        var dto = pedidoImportacaoAssembler.toDto(newPedidoImportacao);
+        dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
+        return ResponseEntity.ok(dto);
+    }
+
     @GetMapping
     public ResponseEntity<Page<PedidoImportacaoResponseSimpleDTO>> index(
         @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
@@ -57,17 +67,6 @@ public class PedidoImportacaoController {
         Page<PedidoImportacao> pedidoImportacaoPage = pedidoImportacaoService.getByFilters(status, dataInicial, pageable);
         Page<PedidoImportacaoResponseSimpleDTO> response = pedidoImportacaoAssembler.toPageSimpleDTO(pedidoImportacaoPage);
         return ResponseEntity.ok(response);
-    }
-    
-
-    @PostMapping
-    public ResponseEntity<PedidoImportacaoResponseDTO> store(@RequestBody @PedidoImportacaoStoreValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
-        PedidoImportacao newPedidoImportacao = pedidoImportacaoAssembler.toStoreEntity(requestDTO);
-        newPedidoImportacao.setSenha(passwordEncoder.encrypt(newPedidoImportacao.getSenha()));
-        newPedidoImportacao = pedidoImportacaoService.save(newPedidoImportacao);
-        var dto = pedidoImportacaoAssembler.toDto(newPedidoImportacao);
-        dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
-        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("proximo")
