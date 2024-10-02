@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.assovio.holerize_api.api.assembler.UsuarioAssembler;
 import com.assovio.holerize_api.api.dto.request.UsuarioRequestDTO;
 import com.assovio.holerize_api.domain.exceptions.BusinessException;
-import com.assovio.holerize_api.domain.exceptions.InvalidOperation;
+import com.assovio.holerize_api.domain.exceptions.InvalidOperationException;
 import com.assovio.holerize_api.domain.exceptions.NotAuthorizedException;
 import com.assovio.holerize_api.domain.model.Usuario;
 import com.assovio.holerize_api.domain.service.TokenService;
@@ -56,7 +56,7 @@ public class AuthController {
     @PostMapping("register")
     public ResponseEntity<?> store(@RequestBody @UsuarioStoreValid UsuarioRequestDTO requestDTO) throws BusinessException {
         if (usuarioService.getUsuarioByLoginOrEmail(requestDTO.getLogin(), requestDTO.getEmail()).isPresent())
-            throw new InvalidOperation("Já existe um usuário cadastrado com este login");
+            throw new InvalidOperationException("Já existe um usuário cadastrado com este login");
 
         Usuario usuario = usuarioAssembler.toEntity(requestDTO);
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));

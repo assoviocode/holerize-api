@@ -1,5 +1,7 @@
 package com.assovio.holerize_api.api.dto.response;
 
+import java.util.UUID;
+
 import com.assovio.holerize_api.domain.model.Enums.EnumErrorType;
 import com.assovio.holerize_api.domain.model.Enums.EnumStatusImportacao;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,7 +13,7 @@ import lombok.Setter;
 @Setter
 public class PedidoImportacaoResponseDTO {
     
-    private Long id;
+    private UUID uuid;
 
     private String cpf;
 
@@ -40,4 +42,7 @@ public class PedidoImportacaoResponseDTO {
     private Integer quantidadeAnosBaixados;
 
     private byte[] file;
+
+    @JsonProperty("usuario_id")
+    private Long usuarioId;
 }

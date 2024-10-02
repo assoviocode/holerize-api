@@ -24,6 +24,7 @@ public class PedidoImportacaoAssembler {
         modelMapper.createTypeMap(PedidoImportacao.class, PedidoImportacaoResponseDTO.class)
         .addMappings(mapper -> {
             mapper.skip(PedidoImportacaoResponseDTO::setFile);
+            mapper.<Long>map(src -> src.getUsuario().getId(), (des, value) -> des.setUsuarioId(value));
         });
         var dto = modelMapper.map(pedidoImportacao, PedidoImportacaoResponseDTO.class);
         dto.setFile(pedidoImportacao.getFile());
@@ -48,6 +49,7 @@ public class PedidoImportacaoAssembler {
             mapper.skip(PedidoImportacao::setTipoErro);
             mapper.skip(PedidoImportacao::setQuantidadeAnosBaixados);
             mapper.skip(PedidoImportacao::setFile);
+            mapper.skip(PedidoImportacao::setUsuario);
         });
         return modelMapper.map(requestDTO, PedidoImportacao.class);
     }
@@ -67,6 +69,7 @@ public class PedidoImportacaoAssembler {
             mapper.skip(PedidoImportacao::setAnoAte);
             mapper.skip(PedidoImportacao::setQuantidadeAnosBaixados);
             mapper.skip(PedidoImportacao::setFile);
+            mapper.skip(PedidoImportacao::setUsuario);
         });
         modelMapper.map(requestDTO, entity);
         return entity;
@@ -88,6 +91,7 @@ public class PedidoImportacaoAssembler {
             mapper.skip(PedidoImportacao::setLog);
             mapper.skip(PedidoImportacao::setTipoErro);
             mapper.skip(PedidoImportacao::setFile);
+            mapper.skip(PedidoImportacao::setUsuario);
         });
         modelMapper.map(requestDTO, entity);
         entity.setFile(requestDTO.getFile());
@@ -101,6 +105,7 @@ public class PedidoImportacaoAssembler {
         modelMapper.createTypeMap(PedidoImportacaoRequestDTO.class, PedidoImportacao.class)
         .addMappings(mapper -> {
             mapper.skip(PedidoImportacao::setFile);
+            mapper.skip(PedidoImportacao::setUsuario);
         });
         modelMapper.map(requestDTO, entity);
         entity.setFile(requestDTO.getFile());

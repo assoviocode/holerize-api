@@ -51,6 +51,13 @@ public class PedidoImportacaoStoreValidator implements ConstraintValidator<Pedid
                 .addConstraintViolation();
             
             return false;
+        } else if (value.getUsuarioId() == null){
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate("O campo usuario_id não pode ser nulo")
+                .addPropertyNode("usuario_id")
+                .addConstraintViolation();
+            
+            return false;
         }
         
         return true;

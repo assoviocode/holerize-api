@@ -1,5 +1,7 @@
 package com.assovio.holerize_api.domain.model;
 
+import java.util.UUID;
+
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLRestriction;
@@ -14,7 +16,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -34,6 +38,9 @@ public class PedidoImportacao extends TimeStamp {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "uuid", nullable = false, unique = true)
+    private UUID uuid;
+
     @Column(name = "cpf", nullable = false)
     private String cpf;
 
@@ -42,7 +49,7 @@ public class PedidoImportacao extends TimeStamp {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private EnumStatusImportacao status = EnumStatusImportacao.NOVO;
+    private EnumStatusImportacao status;
 
     @Column(name = "log")
     private String log;
@@ -69,5 +76,9 @@ public class PedidoImportacao extends TimeStamp {
     @Lob
     @Column(name = "file")
     private byte[] file;
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
 
 }

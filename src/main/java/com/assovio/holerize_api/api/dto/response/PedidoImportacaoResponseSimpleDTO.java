@@ -1,5 +1,7 @@
 package com.assovio.holerize_api.api.dto.response;
 
+import java.util.UUID;
+
 import com.assovio.holerize_api.domain.model.Enums.EnumStatusImportacao;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -10,6 +12,8 @@ import lombok.Setter;
 @Setter
 public class PedidoImportacaoResponseSimpleDTO {
     
+    private UUID uuid;
+
     private String cpf;
 
     private EnumStatusImportacao status;

@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import com.assovio.holerize_api.domain.exceptions.InvalidOperation;
-import com.assovio.holerize_api.domain.exceptions.RegisterNotFound;
+import com.assovio.holerize_api.domain.exceptions.InvalidOperationException;
+import com.assovio.holerize_api.domain.exceptions.RegisterNotFoundException;
 
 @ControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
@@ -35,13 +35,13 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         }
     }
 
-    @ExceptionHandler(RegisterNotFound.class)
+    @ExceptionHandler(RegisterNotFoundException.class)
     public ResponseEntity<?> handleRegisterNotFound(){
         return ResponseEntity.notFound().build();
     }
 
-    @ExceptionHandler(InvalidOperation.class)
-    public ResponseEntity<String> handleInvalidOperation(InvalidOperation ex){
+    @ExceptionHandler(InvalidOperationException.class)
+    public ResponseEntity<String> handleInvalidOperation(InvalidOperationException ex){
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }

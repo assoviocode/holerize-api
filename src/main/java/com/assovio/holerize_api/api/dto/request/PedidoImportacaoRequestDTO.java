@@ -37,6 +37,9 @@ public class PedidoImportacaoRequestDTO {
 
     private byte[] file;
 
+    @JsonProperty("usuario_id")
+    private Long usuarioId;
+
     public void setCpf(String cpf){
         this.cpf = cpf.replaceAll("[\\.\\-]", "").replaceFirst("^0+", "");
     }
