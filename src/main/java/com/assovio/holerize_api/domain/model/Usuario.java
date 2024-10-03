@@ -53,6 +53,8 @@ public class Usuario extends TimeStamp implements UserDetails {
     private String nome;
 
     private String senha;
+
+    private Integer creditos;
     
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

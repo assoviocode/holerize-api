@@ -1,5 +1,10 @@
 package com.assovio.holerize_api.api.controller;
 
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Collection;
 import java.util.Date;
 
 import org.springframework.data.domain.Page;
@@ -8,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,6 +34,7 @@ import com.assovio.holerize_api.api.dto.response.PedidoImportacaoResponseSimpleD
 import com.assovio.holerize_api.api.infra.security.AESUtil;
 import com.assovio.holerize_api.domain.exceptions.InvalidOperationException;
 import com.assovio.holerize_api.domain.exceptions.RegisterNotFoundException;
+import com.assovio.holerize_api.domain.exceptions.SaldoInsuficienteException;
 import com.assovio.holerize_api.domain.model.PedidoImportacao;
 import com.assovio.holerize_api.domain.model.Enums.EnumStatusImportacao;
 import com.assovio.holerize_api.domain.service.PedidoImportacaoService;
@@ -52,14 +59,42 @@ public class PedidoImportacaoController {
     private AESUtil passwordEncoder;
 
     @PostMapping
-    public ResponseEntity<PedidoImportacaoResponseDTO> store(@RequestBody @PedidoImportacaoStoreValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
-        var usuario = usuarioService.getById(requestDTO.getUsuarioId());
+    public ResponseEntity<PedidoImportacaoResponseDTO> store(@AuthenticationPrincipal UserDetails usuarioLogado, @RequestBody @PedidoImportacaoStoreValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
+        
+        var optionalUsuario = usuarioService.getById(requestDTO.getUsuarioId());
 
-        if (!usuario.isPresent())
+        if (!optionalUsuario.isPresent())
             throw new InvalidOperationException("Usuário não encontrado!");
 
+        var usuario = optionalUsuario.get();
+        
+        if (!hasAuthority(usuarioLogado, "ROLE_BOT")){
+            if (usuarioLogado.getUsername().equals(usuario.getLogin())){
+                var dataDe = LocalDate.of(requestDTO.getAnoDe(), requestDTO.getMesDe(), 1);
+                var dataAte = LocalDate.of(requestDTO.getAnoAte(), requestDTO.getMesAte(), 1);
+                ZoneOffset offset = ZoneOffset.ofHours(-3);
+                ZonedDateTime dataDeOffset = dataDe.atStartOfDay(offset);
+                ZonedDateTime dataAteOffset = dataAte.atStartOfDay(offset);
+                long anos = ChronoUnit.YEARS.between(dataAteOffset, dataDeOffset);
+                long meses = ChronoUnit.MONTHS.between(dataAteOffset, dataDeOffset);
+                
+                if (meses > 0)
+                    anos++;
+    
+                var newSaldo = optionalUsuario.get().getCreditos() - anos;
+                if (newSaldo < 0)
+                    throw new SaldoInsuficienteException("Saldo insuficiente para importação");
+    
+                usuario.setCreditos((int)newSaldo);
+                usuario = usuarioService.save(usuario);
+            }
+            else{
+                throw new InvalidOperationException("Usuário logado não representa id de usuário fornecido");
+            }
+        }
+
         PedidoImportacao newPedidoImportacao = pedidoImportacaoAssembler.toStoreEntity(requestDTO);
-        newPedidoImportacao.setUsuario(usuario.get());
+        newPedidoImportacao.setUsuario(usuario);
         newPedidoImportacao.setSenha(passwordEncoder.encrypt(newPedidoImportacao.getSenha()));
         newPedidoImportacao = pedidoImportacaoService.save(newPedidoImportacao);
         var dto = pedidoImportacaoAssembler.toDto(newPedidoImportacao);
@@ -173,5 +208,11 @@ public class PedidoImportacaoController {
         var dto = pedidoImportacaoAssembler.toDto(pedidoImportacao);
         dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
         return new ResponseEntity<PedidoImportacaoResponseDTO>(dto, HttpStatus.OK);
+    }
+
+    private boolean hasAuthority(UserDetails userDetails, String authority) {
+        Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+        return authorities.stream()
+            .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(authority));
     }
 }
