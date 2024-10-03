@@ -13,4 +13,6 @@ public interface UsuarioDAO extends CrudRepository<Usuario, Long> {
     Optional<UserDetails> findFirstUserDetailsByLogin(String login);
 
     Optional<Usuario> findFirstUsuarioByLoginOrEmail(String login, String email);
+
+    Optional<Usuario> findFirstByLogin(String login);
 }

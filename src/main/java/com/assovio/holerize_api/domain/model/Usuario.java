@@ -10,7 +10,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.assovio.holerize_api.domain.model.Enums.EnumRole;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -39,6 +43,9 @@ public class Usuario extends TimeStamp implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
+    private EnumRole role;
+
     private String email;
 
     private String login;
@@ -49,7 +56,13 @@ public class Usuario extends TimeStamp implements UserDetails {
     
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        switch (role) {
+            case BOT:
+                return List.of(new SimpleGrantedAuthority("ROLE_BOT"));
+            default:
+                return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+        
     }
 
     @Override

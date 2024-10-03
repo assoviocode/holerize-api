@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -63,6 +65,24 @@ public class PedidoImportacaoController {
         var dto = pedidoImportacaoAssembler.toDto(newPedidoImportacao);
         dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
         return new ResponseEntity<PedidoImportacaoResponseDTO>(dto, HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<PedidoImportacaoResponseSimpleDTO>> index(
+        @AuthenticationPrincipal UserDetails usuario,
+        @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+        @RequestParam(name = "size", required = false, defaultValue = "30") Integer size,
+        @RequestParam(name = "status", required = false) EnumStatusImportacao status,
+        @RequestParam(name = "data_inicial", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataInicial
+    ) throws InvalidOperationException {
+        var usuarioLogado = usuarioService.getUsuarioByLogin(usuario.getUsername());
+        if (!usuarioLogado.isPresent())
+            throw new InvalidOperationException("Usuário não identificado");
+            
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PedidoImportacao> pedidoImportacaoPage = pedidoImportacaoService.getByFilters(usuarioLogado.get().getId(), status, dataInicial, pageable);
+        Page<PedidoImportacaoResponseSimpleDTO> response = pedidoImportacaoAssembler.toPageSimpleDTO(pedidoImportacaoPage);
+        return new ResponseEntity<Page<PedidoImportacaoResponseSimpleDTO>>(response, HttpStatus.OK);
     }
 
     @GetMapping("proximo")
@@ -142,19 +162,5 @@ public class PedidoImportacaoController {
         var dto = pedidoImportacaoAssembler.toDto(pedidoImportacao);
         dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
         return new ResponseEntity<PedidoImportacaoResponseDTO>(dto, HttpStatus.OK);
-    }
-
-    @GetMapping("index/{userId}")
-    public ResponseEntity<Page<PedidoImportacaoResponseSimpleDTO>> index(
-        @PathVariable Long userId,
-        @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
-        @RequestParam(name = "size", required = false, defaultValue = "30") Integer size,
-        @RequestParam(name = "status", required = false) EnumStatusImportacao status,
-        @RequestParam(name = "data_inicial", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataInicial
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<PedidoImportacao> pedidoImportacaoPage = pedidoImportacaoService.getByFilters(userId, status, dataInicial, pageable);
-        Page<PedidoImportacaoResponseSimpleDTO> response = pedidoImportacaoAssembler.toPageSimpleDTO(pedidoImportacaoPage);
-        return new ResponseEntity<Page<PedidoImportacaoResponseSimpleDTO>>(response, HttpStatus.OK);
     }
 }

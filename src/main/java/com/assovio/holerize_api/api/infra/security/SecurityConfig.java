@@ -27,7 +27,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/auth/register").denyAll()
-                .anyRequest().authenticated()
+                .requestMatchers(HttpMethod.GET, "/pedidosImportacao").hasRole("USER")
+                .requestMatchers(HttpMethod.PUT, "/pedidosImportacao/*").hasRole("USER")
+                .anyRequest().hasRole("BOT")
                 //.anyRequest().permitAll()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
