@@ -2,7 +2,6 @@ package com.assovio.holerize_api.domain.service;
 
 import java.util.Date;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +30,7 @@ public class PedidoImportacaoService extends GenericService<PedidoImportacao, Pe
         return getById(savedEntity.getId()).orElse(null);
     }
 
-    public Optional<PedidoImportacao> getByUuid(UUID uuid){
+    public Optional<PedidoImportacao> getByUuid(String uuid){
         return dao.findFirstByUuid(uuid);
     }
 

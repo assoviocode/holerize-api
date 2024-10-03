@@ -1,7 +1,5 @@
 package com.assovio.holerize_api.domain.model;
 
-import java.util.UUID;
-
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLRestriction;
@@ -39,7 +37,7 @@ public class PedidoImportacao extends TimeStamp {
     private Long id;
 
     @Column(name = "uuid", nullable = false, unique = true)
-    private UUID uuid;
+    private String uuid;
 
     @Column(name = "cpf", nullable = false)
     private String cpf;

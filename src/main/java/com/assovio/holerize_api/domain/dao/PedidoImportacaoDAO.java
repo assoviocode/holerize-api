@@ -2,7 +2,6 @@ package com.assovio.holerize_api.domain.dao;
 
 import java.util.Date;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,5 +23,5 @@ public interface PedidoImportacaoDAO extends CrudRepository<PedidoImportacao, Lo
     Page<PedidoImportacao> findByFilters(Long usuarioId, EnumStatusImportacao status, Date dataInicial,
             Pageable pageable);
 
-    Optional<PedidoImportacao> findFirstByUuid(UUID uuid);
+    Optional<PedidoImportacao> findFirstByUuid(String uuid);
 }

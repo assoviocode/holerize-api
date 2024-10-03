@@ -1,7 +1,6 @@
 package com.assovio.holerize_api.api.controller;
 
 import java.util.Date;
-import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -82,7 +81,7 @@ public class PedidoImportacaoController {
     }
     
     @PutMapping("{uuid}")
-    public ResponseEntity<PedidoImportacaoResponseDTO> update(@PathVariable UUID uuid, @RequestBody @PedidoImportacaoUpdateValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
+    public ResponseEntity<PedidoImportacaoResponseDTO> update(@PathVariable String uuid, @RequestBody @PedidoImportacaoUpdateValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
         var optionalPedido = pedidoImportacaoService.getByUuid(uuid);
 
         if (!optionalPedido.isPresent())
@@ -98,7 +97,7 @@ public class PedidoImportacaoController {
     }
 
     @DeleteMapping("{uuid}")
-    public ResponseEntity<?> destroy(@PathVariable UUID uuid) throws RegisterNotFoundException {
+    public ResponseEntity<?> destroy(@PathVariable String uuid) throws RegisterNotFoundException {
         var optionalPedido = pedidoImportacaoService.getByUuid(uuid);
         
         if (!optionalPedido.isPresent())
@@ -110,7 +109,7 @@ public class PedidoImportacaoController {
     }
 
     @PatchMapping("{uuid}/finalizado")
-    public ResponseEntity<PedidoImportacaoResponseDTO> finish(@PathVariable UUID uuid, @RequestBody @PedidoImportacaoFinishValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
+    public ResponseEntity<PedidoImportacaoResponseDTO> finish(@PathVariable String uuid, @RequestBody @PedidoImportacaoFinishValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
         var optionalPedido = pedidoImportacaoService.getByUuid(uuid);
 
         if (!optionalPedido.isPresent())
@@ -128,7 +127,7 @@ public class PedidoImportacaoController {
     }
 
     @PatchMapping("{uuid}/erro")
-    public ResponseEntity<PedidoImportacaoResponseDTO> error(@PathVariable UUID uuid, @RequestBody @PedidoImportacaoErrorValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
+    public ResponseEntity<PedidoImportacaoResponseDTO> error(@PathVariable String uuid, @RequestBody @PedidoImportacaoErrorValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
         var optionalPedido = pedidoImportacaoService.getByUuid(uuid);
 
         if (!optionalPedido.isPresent())
@@ -145,7 +144,6 @@ public class PedidoImportacaoController {
         return new ResponseEntity<PedidoImportacaoResponseDTO>(dto, HttpStatus.OK);
     }
 
-    //TODO: Verificar melhor implementação de paginação
     @GetMapping("index/{userId}")
     public ResponseEntity<Page<PedidoImportacaoResponseSimpleDTO>> index(
         @PathVariable Long userId,
