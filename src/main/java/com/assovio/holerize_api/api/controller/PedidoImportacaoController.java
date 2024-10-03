@@ -99,6 +99,17 @@ public class PedidoImportacaoController {
         dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
         return new ResponseEntity<PedidoImportacaoResponseDTO>(dto, HttpStatus.OK);
     }
+
+    @GetMapping("{uuid}")
+    public ResponseEntity<PedidoImportacaoResponseDTO> show(@PathVariable String uuid) throws RegisterNotFoundException {
+        var optionalPedido = pedidoImportacaoService.getByUuid(uuid);
+
+        if (!optionalPedido.isPresent())
+            throw new RegisterNotFoundException("Pedido de importação não encontrado");
+
+        return new ResponseEntity<PedidoImportacaoResponseDTO>(pedidoImportacaoAssembler.toDto(optionalPedido.get()), HttpStatus.OK);
+    }
+    
     
     @PutMapping("{uuid}")
     public ResponseEntity<PedidoImportacaoResponseDTO> update(@PathVariable String uuid, @RequestBody @PedidoImportacaoUpdateValid PedidoImportacaoRequestDTO requestDTO) throws Exception {

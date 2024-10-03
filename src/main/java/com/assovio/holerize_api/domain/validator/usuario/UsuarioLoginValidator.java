@@ -10,10 +10,10 @@ public class UsuarioLoginValidator implements ConstraintValidator<UsuarioLoginVa
     @Override
     public boolean isValid(UsuarioRequestDTO value, ConstraintValidatorContext context) {
         
-        if (value.getLogin() == null || value.getLogin().isBlank()){
+        if ((value.getLogin() == null || value.getLogin().isBlank()) && (value.getEmail() == null || value.getEmail().isBlank())){
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("O campo login não pode ser nulo ou vazio")
-                .addPropertyNode("login")
+            context.buildConstraintViolationWithTemplate("O campo login e e-mail não podem ser nulos ou vazios")
+                .addPropertyNode("login, email")
                 .addConstraintViolation();
             
             return false;

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.assovio.holerize_api.api.assembler.UsuarioAssembler;
 import com.assovio.holerize_api.api.dto.request.UsuarioRequestDTO;
+import com.assovio.holerize_api.api.dto.response.UsuarioResponseDTO;
 import com.assovio.holerize_api.domain.exceptions.BusinessException;
 import com.assovio.holerize_api.domain.exceptions.InvalidOperationException;
 import com.assovio.holerize_api.domain.exceptions.NotAuthorizedException;
@@ -36,32 +37,38 @@ public class AuthController {
     PasswordEncoder passwordEncoder;
 
     @PostMapping("login")
-    public ResponseEntity<String> login(@RequestBody @UsuarioLoginValid UsuarioRequestDTO requestDTO) {
+    public ResponseEntity<UsuarioResponseDTO> login(@RequestBody @UsuarioLoginValid UsuarioRequestDTO requestDTO) {
         try{
-            var usernamePassword = new UsernamePasswordAuthenticationToken(requestDTO.getLogin(), requestDTO.getSenha());
+            var optionalUsuario = usuarioService.getUsuarioByLoginOrEmail(requestDTO.getLogin(), requestDTO.getEmail());
+            if (!optionalUsuario.isPresent())
+                throw new RuntimeException();
+
+            var usernamePassword = new UsernamePasswordAuthenticationToken(optionalUsuario.get().getLogin(), requestDTO.getSenha());
             var auth = authenticationManager.authenticate(usernamePassword);
             Usuario usuario = (Usuario) auth.getPrincipal();
-            var token = tokenService.generateToken(usuario);
+            UsuarioResponseDTO dto = usuarioAssembler.toDto(usuario);
+            dto.setToken(tokenService.generateToken(usuario));
 
-            if (token != null && !token.isBlank())
-                return ResponseEntity.ok(token);
+            if (dto.getToken() != null && !dto.getToken().isBlank())
+                return new ResponseEntity<UsuarioResponseDTO>(dto, HttpStatus.OK);
 
         } catch (RuntimeException ex){
             throw new NotAuthorizedException("Usuário ou senha inválidos!");
         }
 
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
     
     @PostMapping("register")
-    public ResponseEntity<?> store(@RequestBody @UsuarioStoreValid UsuarioRequestDTO requestDTO) throws BusinessException {
+    public ResponseEntity<UsuarioResponseDTO> store(@RequestBody @UsuarioStoreValid UsuarioRequestDTO requestDTO) throws BusinessException {
         if (usuarioService.getUsuarioByLoginOrEmail(requestDTO.getLogin(), requestDTO.getEmail()).isPresent())
             throw new InvalidOperationException("Já existe um usuário cadastrado com este login");
 
         Usuario usuario = usuarioAssembler.toEntity(requestDTO);
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         usuario = usuarioService.save(usuario);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        UsuarioResponseDTO dto = usuarioAssembler.toDto(usuario);
+        return new ResponseEntity<UsuarioResponseDTO>(dto, HttpStatus.CREATED);
     }
     
 }
