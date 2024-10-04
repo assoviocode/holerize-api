@@ -14,6 +14,8 @@ public class UsuarioResponseDTO {
 
     private String nome;
 
+    private String login;
+
     private String email;
 
     @JsonProperty("perfil")
