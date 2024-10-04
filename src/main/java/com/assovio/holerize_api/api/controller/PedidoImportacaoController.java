@@ -107,6 +107,7 @@ public class PedidoImportacaoController {
         @AuthenticationPrincipal UserDetails usuario,
         @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
         @RequestParam(name = "size", required = false, defaultValue = "30") Integer size,
+        @RequestParam(name = "cpf", required = false) String cpf,
         @RequestParam(name = "status", required = false) EnumStatusImportacao status,
         @RequestParam(name = "data_inicial", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataInicial
     ) throws InvalidOperationException {
@@ -115,7 +116,7 @@ public class PedidoImportacaoController {
             throw new InvalidOperationException("Usuário não identificado");
             
         Pageable pageable = PageRequest.of(page, size);
-        Page<PedidoImportacao> pedidoImportacaoPage = pedidoImportacaoService.getByFilters(usuarioLogado.get().getId(), status, dataInicial, pageable);
+        Page<PedidoImportacao> pedidoImportacaoPage = pedidoImportacaoService.getByFilters(usuarioLogado.get().getId(), cpf, status, dataInicial, pageable);
         Page<PedidoImportacaoResponseSimpleDTO> response = pedidoImportacaoAssembler.toPageSimpleDTO(pedidoImportacaoPage);
         return new ResponseEntity<Page<PedidoImportacaoResponseSimpleDTO>>(response, HttpStatus.OK);
     }
@@ -136,12 +137,14 @@ public class PedidoImportacaoController {
     }
 
     @GetMapping("{uuid}")
-    public ResponseEntity<PedidoImportacaoResponseDTO> show(@PathVariable String uuid) throws RegisterNotFoundException {
+    public ResponseEntity<PedidoImportacaoResponseDTO> show(@PathVariable String uuid) throws Exception {
         var optionalPedido = pedidoImportacaoService.getByUuid(uuid);
 
         if (!optionalPedido.isPresent())
             throw new RegisterNotFoundException("Pedido de importação não encontrado");
 
+        var pedido = optionalPedido.get();
+        pedido.setSenha(passwordEncoder.decrypt(pedido.getSenha()));
         return new ResponseEntity<PedidoImportacaoResponseDTO>(pedidoImportacaoAssembler.toDto(optionalPedido.get()), HttpStatus.OK);
     }
     

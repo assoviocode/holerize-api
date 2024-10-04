@@ -22,4 +22,6 @@ public class UsuarioResponseDTO {
     private EnumRole role;
 
     private String token;
+
+    private Integer creditos;
 }

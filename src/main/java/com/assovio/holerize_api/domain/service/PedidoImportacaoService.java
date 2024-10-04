@@ -38,8 +38,8 @@ public class PedidoImportacaoService extends GenericService<PedidoImportacao, Pe
         return dao.findFirstByStatusOrderByIdAsc(EnumStatusImportacao.NOVO);
     }
 
-    public Page<PedidoImportacao> getByFilters(Long usuarioId, EnumStatusImportacao status, Date dataInicial,
+    public Page<PedidoImportacao> getByFilters(Long usuarioId, String cpf, EnumStatusImportacao status, Date dataInicial,
             Pageable pageable) {
-        return dao.findByFilters(usuarioId, status, dataInicial, pageable);
+        return dao.findByFilters(usuarioId, cpf.replaceAll("[^0-9]", "").replaceFirst("^0+", ""), status, dataInicial, pageable);
     }
 }

@@ -16,4 +16,5 @@ public class UsuarioRequestDTO {
     String login;
     String nome;
     String senha;
+    Integer creditos;
 }

@@ -18,9 +18,10 @@ public interface PedidoImportacaoDAO extends CrudRepository<PedidoImportacao, Lo
     @Query(value = 
         "SELECT * from pedido_importacao pi WHERE " +
         "(pi.usuario_id = :usuarioId) AND " +
+        "(:cpf IS NULL OR pi.cpf LIKE CONCAT('%', :cpf, '%')) AND " +
         "(:status IS NULL OR pi.status = :status) AND " +
         "(:dataInicial IS NULL OR pi.updated_at >= STR_TO_DATE(:dataInicial, '%Y-%m-%d'))", nativeQuery = true)
-    Page<PedidoImportacao> findByFilters(Long usuarioId, EnumStatusImportacao status, Date dataInicial,
+    Page<PedidoImportacao> findByFilters(Long usuarioId, String cpf, EnumStatusImportacao status, Date dataInicial,
             Pageable pageable);
 
     Optional<PedidoImportacao> findFirstByUuid(String uuid);
