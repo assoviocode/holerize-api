@@ -34,7 +34,7 @@ public abstract class GenericService<Entity extends TimeStamp, Dao extends CrudR
     }
 
     public void logicalDelete(Entity entity){
-        entity.setDeleteAt(OffsetDateTime.now().toInstant().atOffset(ZoneOffset.ofHours(3)));
+        entity.setDeletedAt(OffsetDateTime.now().toInstant().atOffset(ZoneOffset.ofHours(3)));
         save(entity);
     }
 }

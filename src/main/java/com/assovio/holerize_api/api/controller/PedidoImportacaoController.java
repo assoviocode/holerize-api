@@ -247,6 +247,8 @@ public class PedidoImportacaoController {
         var dataDe = LocalDate.of(anoDe, mesDe, 1);
         ZoneOffset offset = ZoneOffset.ofHours(-3);
         ZonedDateTime dataDeOffset = dataDe.atStartOfDay(offset);
-        return dataDeOffset.minusYears(quantidadeAnosSolicitados);
+        var dataAteOffset = dataDeOffset.minusYears(quantidadeAnosSolicitados);
+        dataAteOffset = dataAteOffset.plusMonths(1);
+        return dataAteOffset;
     }
 }

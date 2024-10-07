@@ -48,8 +48,10 @@ public class PedidoImportacaoService extends GenericService<PedidoImportacao, Pe
         return dao.findByFilters(usuarioId, cpfWithoutMask, status, dataInicial, pageable);
     }
 
+    @Override
+    @Transactional
     public void logicalDelete(PedidoImportacao entity){
-        entity.setDeleteAt(OffsetDateTime.now().toInstant().atOffset(ZoneOffset.ofHours(3)));
+        entity.setDeletedAt(OffsetDateTime.now().toInstant().atOffset(ZoneOffset.ofHours(3)));
         dao.save(entity);
     }
 }

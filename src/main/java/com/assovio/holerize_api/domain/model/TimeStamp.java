@@ -22,5 +22,5 @@ public abstract class TimeStamp {
 	private OffsetDateTime updatedAt;
 
     @Column(name = "deleted_at")
-	private OffsetDateTime deleteAt;
+	private OffsetDateTime deletedAt;
 }
