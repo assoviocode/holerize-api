@@ -40,6 +40,9 @@ public class PedidoImportacaoService extends GenericService<PedidoImportacao, Pe
 
     public Page<PedidoImportacao> getByFilters(Long usuarioId, String cpf, EnumStatusImportacao status, Date dataInicial,
             Pageable pageable) {
-        return dao.findByFilters(usuarioId, cpf.replaceAll("[^0-9]", "").replaceFirst("^0+", ""), status, dataInicial, pageable);
+        var cpfWithoutMask = cpf;
+        if (cpf != null)
+            cpfWithoutMask = cpf.replaceAll("[^0-9]", "").replaceFirst("^0+", "");
+        return dao.findByFilters(usuarioId, cpfWithoutMask, status, dataInicial, pageable);
     }
 }
