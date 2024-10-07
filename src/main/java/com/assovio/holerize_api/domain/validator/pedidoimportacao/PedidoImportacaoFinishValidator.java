@@ -37,6 +37,20 @@ public class PedidoImportacaoFinishValidator implements ConstraintValidator<Pedi
                 .addConstraintViolation();
             
             return false;
+        } else if (value.getAnoDe() == null){
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate("O campo ano_de não pode ser nulo ou vazio")
+                .addPropertyNode("ano_de")
+                .addConstraintViolation();
+            
+            return false;
+        } else if (value.getMesDe() == null){
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate("O campo mes_de não pode ser nulo ou vazio")
+                .addPropertyNode("mes_de")
+                .addConstraintViolation();
+            
+            return false;
         }
 
         return true;
