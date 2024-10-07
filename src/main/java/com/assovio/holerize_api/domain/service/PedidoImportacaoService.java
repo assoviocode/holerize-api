@@ -35,7 +35,7 @@ public class PedidoImportacaoService extends GenericService<PedidoImportacao, Pe
     }
 
     public Optional<PedidoImportacao> getNext() {
-        return dao.findFirstByStatusOrderByIdAsc(EnumStatusImportacao.NOVO);
+        return dao.findFirstByStatusOrderByIdAsc(EnumStatusImportacao.NA_FILA);
     }
 
     public Page<PedidoImportacao> getByFilters(Long usuarioId, String cpf, EnumStatusImportacao status, Date dataInicial,

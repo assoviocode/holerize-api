@@ -30,4 +30,6 @@ public class PedidoImportacaoResponseSimpleDTO {
 
     @JsonProperty("quantidade_anos_baixados")
     private Integer quantidadeAnosBaixados;
+
+    private byte[] file;
 }

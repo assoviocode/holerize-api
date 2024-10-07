@@ -70,22 +70,13 @@ public class PedidoImportacaoController {
         
         if (!hasAuthority(usuarioLogado, "ROLE_BOT")){
             if (usuarioLogado.getUsername().equals(usuario.getLogin())){
-                var dataDe = LocalDate.of(requestDTO.getAnoDe(), requestDTO.getMesDe(), 1);
-                var dataAte = LocalDate.of(requestDTO.getAnoAte(), requestDTO.getMesAte(), 1);
-                ZoneOffset offset = ZoneOffset.ofHours(-3);
-                ZonedDateTime dataDeOffset = dataDe.atStartOfDay(offset);
-                ZonedDateTime dataAteOffset = dataAte.atStartOfDay(offset);
-                long anos = ChronoUnit.YEARS.between(dataAteOffset, dataDeOffset);
-                long meses = ChronoUnit.MONTHS.between(dataAteOffset, dataDeOffset);
+                int anos = getAnosSolicitados(requestDTO.getMesDe(), requestDTO.getAnoDe(), requestDTO.getMesAte(), requestDTO.getAnoAte());
+                int newSaldo = optionalUsuario.get().getCreditos() - anos;
                 
-                if (meses > 0)
-                    anos++;
-    
-                var newSaldo = optionalUsuario.get().getCreditos() - anos;
                 if (newSaldo < 0)
                     throw new SaldoInsuficienteException("Saldo insuficiente para importação");
     
-                usuario.setCreditos((int)newSaldo);
+                usuario.setCreditos(newSaldo);
                 usuario = usuarioService.save(usuario);
             }
             else{
@@ -189,6 +180,14 @@ public class PedidoImportacaoController {
         var pedidoImportacao = optionalPedido.get();
         pedidoImportacao = pedidoImportacaoAssembler.toFinishEntity(requestDTO, pedidoImportacao);
         pedidoImportacao.setStatus(EnumStatusImportacao.CONCLUIDO);
+        int anosSolicitados = getAnosSolicitados(pedidoImportacao.getMesDe(), pedidoImportacao.getAnoDe(), pedidoImportacao.getMesAte(), pedidoImportacao.getAnoAte());
+        int refund = anosSolicitados - pedidoImportacao.getQuantidadeAnosBaixados();
+        
+        if (refund > 0){
+            pedidoImportacao.getUsuario().setCreditos(pedidoImportacao.getUsuario().getCreditos() + refund);
+            usuarioService.save(pedidoImportacao.getUsuario());
+        }
+        
         pedidoImportacao = pedidoImportacaoService.save(pedidoImportacao);
         var dto = pedidoImportacaoAssembler.toDto(pedidoImportacao);
         dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
@@ -217,5 +216,20 @@ public class PedidoImportacaoController {
         Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
         return authorities.stream()
             .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(authority));
+    }
+
+    private int getAnosSolicitados(int mesDe, int anoDe, int mesAte, int anoAte){
+        var dataDe = LocalDate.of(anoDe, mesDe, 1);
+        var dataAte = LocalDate.of(anoAte, mesAte, 1);
+        ZoneOffset offset = ZoneOffset.ofHours(-3);
+        ZonedDateTime dataDeOffset = dataDe.atStartOfDay(offset);
+        ZonedDateTime dataAteOffset = dataAte.atStartOfDay(offset);
+        long anos = ChronoUnit.YEARS.between(dataAteOffset, dataDeOffset);
+        long meses = ChronoUnit.MONTHS.between(dataAteOffset, dataDeOffset);
+        
+        if (meses > 0)
+            anos++;
+
+        return (int)anos;
     }
 }
