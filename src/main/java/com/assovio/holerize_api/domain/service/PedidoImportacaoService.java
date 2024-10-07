@@ -1,5 +1,7 @@
 package com.assovio.holerize_api.domain.service;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Optional;
 
@@ -44,5 +46,10 @@ public class PedidoImportacaoService extends GenericService<PedidoImportacao, Pe
         if (cpf != null)
             cpfWithoutMask = cpf.replaceAll("[^0-9]", "").replaceFirst("^0+", "");
         return dao.findByFilters(usuarioId, cpfWithoutMask, status, dataInicial, pageable);
+    }
+
+    public void logicalDelete(PedidoImportacao entity){
+        entity.setDeleteAt(OffsetDateTime.now().toInstant().atOffset(ZoneOffset.ofHours(3)));
+        dao.save(entity);
     }
 }

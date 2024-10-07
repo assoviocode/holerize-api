@@ -30,13 +30,6 @@ public class PedidoImportacaoStoreValidator implements ConstraintValidator<Pedid
                 .addConstraintViolation();
             
             return false;
-        } else if (value.getAnoAte() == null){
-            context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("O campo ano_ate não pode ser nulo")
-                .addPropertyNode("ano_ate")
-                .addConstraintViolation();
-            
-            return false;
         } else if (value.getMesDe() == null){
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("O campo mes_de não pode ser nulo")
@@ -44,17 +37,17 @@ public class PedidoImportacaoStoreValidator implements ConstraintValidator<Pedid
                 .addConstraintViolation();
             
             return false;
-        } else if (value.getMesAte() == null){
-            context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("O campo mes_ate não pode ser nulo")
-                .addPropertyNode("mes_ate")
-                .addConstraintViolation();
-            
-            return false;
         } else if (value.getUsuarioId() == null){
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("O campo usuario_id não pode ser nulo")
                 .addPropertyNode("usuario_id")
+                .addConstraintViolation();
+            
+            return false;
+        } else if (value.getQuantidadeAnosSolicitados() == null){
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate("O campo quantidade_anos_solicitados não pode ser nulo")
+                .addPropertyNode("quantidade_anos_solicitados")
                 .addConstraintViolation();
             
             return false;

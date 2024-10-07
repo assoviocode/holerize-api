@@ -47,6 +47,8 @@ public class PedidoImportacaoAssembler {
             mapper.skip(PedidoImportacao::setStatus);
             mapper.skip(PedidoImportacao::setLog);
             mapper.skip(PedidoImportacao::setTipoErro);
+            mapper.skip(PedidoImportacao::setAnoAte);
+            mapper.skip(PedidoImportacao::setMesAte);
             mapper.skip(PedidoImportacao::setQuantidadeAnosBaixados);
             mapper.skip(PedidoImportacao::setFile);
             mapper.skip(PedidoImportacao::setUsuario);

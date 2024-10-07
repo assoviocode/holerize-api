@@ -28,6 +28,9 @@ public class PedidoImportacaoResponseSimpleDTO {
     @JsonProperty("ano_ate")
     private Integer anoAte;
 
+    @JsonProperty("quantidade_anos_solicitados")
+    private Integer quantidadeAnosSolicitados;
+
     @JsonProperty("quantidade_anos_baixados")
     private Integer quantidadeAnosBaixados;
 

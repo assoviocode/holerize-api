@@ -3,7 +3,6 @@ package com.assovio.holerize_api.api.controller;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Date;
 
@@ -70,8 +69,7 @@ public class PedidoImportacaoController {
         
         if (!hasAuthority(usuarioLogado, "ROLE_BOT")){
             if (usuarioLogado.getUsername().equals(usuario.getLogin())){
-                int anos = getAnosSolicitados(requestDTO.getMesDe(), requestDTO.getAnoDe(), requestDTO.getMesAte(), requestDTO.getAnoAte());
-                int newSaldo = optionalUsuario.get().getCreditos() - anos;
+                int newSaldo = optionalUsuario.get().getCreditos() - requestDTO.getQuantidadeAnosSolicitados();
                 
                 if (newSaldo < 0)
                     throw new SaldoInsuficienteException("Saldo insuficiente para importação");
@@ -85,6 +83,9 @@ public class PedidoImportacaoController {
         }
 
         PedidoImportacao newPedidoImportacao = pedidoImportacaoAssembler.toStoreEntity(requestDTO);
+        var dataAte = getPeriodoAte(newPedidoImportacao.getMesDe(), newPedidoImportacao.getAnoDe(), newPedidoImportacao.getQuantidadeAnosSolicitados());
+        newPedidoImportacao.setMesAte(dataAte.getMonthValue());
+        newPedidoImportacao.setAnoAte(dataAte.getYear());
         newPedidoImportacao.setUsuario(usuario);
         newPedidoImportacao.setSenha(passwordEncoder.encrypt(newPedidoImportacao.getSenha()));
         newPedidoImportacao = pedidoImportacaoService.save(newPedidoImportacao);
@@ -141,14 +142,39 @@ public class PedidoImportacaoController {
     
     
     @PutMapping("{uuid}")
-    public ResponseEntity<PedidoImportacaoResponseDTO> update(@PathVariable String uuid, @RequestBody @PedidoImportacaoUpdateValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
+    public ResponseEntity<PedidoImportacaoResponseDTO> update(@PathVariable String uuid, @AuthenticationPrincipal UserDetails usuarioLogado, @RequestBody @PedidoImportacaoUpdateValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
         var optionalPedido = pedidoImportacaoService.getByUuid(uuid);
 
         if (!optionalPedido.isPresent())
             throw new RegisterNotFoundException("Pedido de importação não encontrado");
 
+        var optionalUsuario = usuarioService.getById(requestDTO.getUsuarioId());
+
+        if (!optionalUsuario.isPresent())
+            throw new InvalidOperationException("Usuário não encontrado!");
+
+        var usuario = optionalUsuario.get();
+
+        if (!hasAuthority(usuarioLogado, "ROLE_BOT")){
+            if (usuarioLogado.getUsername().equals(usuario.getLogin())){
+                int newSaldo = optionalUsuario.get().getCreditos() - requestDTO.getQuantidadeAnosSolicitados();
+                
+                if (newSaldo < 0)
+                    throw new SaldoInsuficienteException("Saldo insuficiente para importação");
+
+                usuario.setCreditos(newSaldo);
+                usuario = usuarioService.save(usuario);
+            }
+            else{
+                throw new InvalidOperationException("Usuário logado não representa id de usuário fornecido");
+            }
+        }
+
         var pedidoImportacao = optionalPedido.get();
         pedidoImportacao = pedidoImportacaoAssembler.toUpdateEntity(requestDTO, pedidoImportacao);
+        var dataAte = getPeriodoAte(pedidoImportacao.getMesDe(), pedidoImportacao.getAnoDe(), pedidoImportacao.getQuantidadeAnosSolicitados());
+        pedidoImportacao.setMesAte(dataAte.getMonthValue());
+        pedidoImportacao.setAnoAte(dataAte.getYear());
         pedidoImportacao.setSenha(passwordEncoder.encrypt(pedidoImportacao.getSenha()));
         pedidoImportacao = pedidoImportacaoService.save(pedidoImportacao);
         var dto = pedidoImportacaoAssembler.toDto(pedidoImportacao);
@@ -180,9 +206,8 @@ public class PedidoImportacaoController {
         var pedidoImportacao = optionalPedido.get();
         pedidoImportacao = pedidoImportacaoAssembler.toFinishEntity(requestDTO, pedidoImportacao);
         pedidoImportacao.setStatus(EnumStatusImportacao.CONCLUIDO);
-        int anosSolicitados = getAnosSolicitados(pedidoImportacao.getMesDe(), pedidoImportacao.getAnoDe(), pedidoImportacao.getMesAte(), pedidoImportacao.getAnoAte());
-        int refund = anosSolicitados - pedidoImportacao.getQuantidadeAnosBaixados();
-        
+        int refund = pedidoImportacao.getQuantidadeAnosSolicitados() - pedidoImportacao.getQuantidadeAnosBaixados();
+
         if (refund > 0){
             pedidoImportacao.getUsuario().setCreditos(pedidoImportacao.getUsuario().getCreditos() + refund);
             usuarioService.save(pedidoImportacao.getUsuario());
@@ -218,18 +243,10 @@ public class PedidoImportacaoController {
             .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(authority));
     }
 
-    private int getAnosSolicitados(int mesDe, int anoDe, int mesAte, int anoAte){
+    private ZonedDateTime getPeriodoAte(int mesDe, int anoDe, int quantidadeAnosSolicitados){
         var dataDe = LocalDate.of(anoDe, mesDe, 1);
-        var dataAte = LocalDate.of(anoAte, mesAte, 1);
         ZoneOffset offset = ZoneOffset.ofHours(-3);
         ZonedDateTime dataDeOffset = dataDe.atStartOfDay(offset);
-        ZonedDateTime dataAteOffset = dataAte.atStartOfDay(offset);
-        long anos = ChronoUnit.YEARS.between(dataAteOffset, dataDeOffset);
-        long meses = ChronoUnit.MONTHS.between(dataAteOffset, dataDeOffset);
-        
-        if (meses > 0)
-            anos++;
-
-        return (int)anos;
+        return dataDeOffset.minusYears(quantidadeAnosSolicitados);
     }
 }

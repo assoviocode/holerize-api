@@ -68,6 +68,9 @@ public class PedidoImportacao extends TimeStamp {
     @Column(name = "ano_ate", nullable = false)
     private Integer anoAte;
 
+    @Column(name = "quantidade_anos_solicitados")
+    private Integer quantidadeAnosSolicitados;
+
     @Column(name = "quantidade_anos_baixados")
     private Integer quantidadeAnosBaixados;
 
