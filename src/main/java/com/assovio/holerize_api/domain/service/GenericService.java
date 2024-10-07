@@ -12,6 +12,8 @@ import org.springframework.data.repository.CrudRepository;
 
 import com.assovio.holerize_api.domain.model.TimeStamp;
 
+import jakarta.transaction.Transactional;
+
 public abstract class GenericService<Entity extends TimeStamp, Dao extends CrudRepository<Entity, TypeId>, TypeId> {
     
     @Autowired
@@ -25,16 +27,19 @@ public abstract class GenericService<Entity extends TimeStamp, Dao extends CrudR
         return dao.findById(id);
     }
 
+    @Transactional
     public Entity save(Entity entity){
         return dao.save(entity);
     }
 
+    @Transactional
     public void delete(Entity entity){
         dao.delete(entity);
     }
 
+    @Transactional
     public void logicalDelete(Entity entity){
         entity.setDeletedAt(OffsetDateTime.now().toInstant().atOffset(ZoneOffset.ofHours(3)));
-        save(entity);
+        var a = save(entity);
     }
 }

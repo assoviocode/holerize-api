@@ -1,7 +1,5 @@
 package com.assovio.holerize_api.domain.service;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Optional;
 
@@ -48,10 +46,4 @@ public class PedidoImportacaoService extends GenericService<PedidoImportacao, Pe
         return dao.findByFilters(usuarioId, cpfWithoutMask, status, dataInicial, pageable);
     }
 
-    @Override
-    @Transactional
-    public void logicalDelete(PedidoImportacao entity){
-        entity.setDeletedAt(OffsetDateTime.now().toInstant().atOffset(ZoneOffset.ofHours(3)));
-        dao.save(entity);
-    }
 }
