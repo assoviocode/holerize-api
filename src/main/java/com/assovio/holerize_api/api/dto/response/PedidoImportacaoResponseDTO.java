@@ -13,6 +13,8 @@ public class PedidoImportacaoResponseDTO {
     
     private String uuid;
 
+    private String nome;
+
     private String cpf;
 
     private String senha;

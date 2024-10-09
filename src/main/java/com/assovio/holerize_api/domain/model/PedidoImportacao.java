@@ -43,6 +43,9 @@ public class PedidoImportacao extends TimeStamp {
     @Column(name = "uuid", nullable = false, unique = true)
     private String uuid;
 
+    @Column(name = "nome")
+    private String nome;
+
     @Column(name = "cpf", nullable = false)
     private String cpf;
 

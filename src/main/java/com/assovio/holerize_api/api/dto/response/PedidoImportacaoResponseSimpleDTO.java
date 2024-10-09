@@ -12,6 +12,8 @@ public class PedidoImportacaoResponseSimpleDTO {
     
     private String uuid;
 
+    private String nome;
+
     private String cpf;
 
     private EnumStatusImportacao status;
