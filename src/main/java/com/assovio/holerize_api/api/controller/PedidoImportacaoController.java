@@ -3,8 +3,9 @@ package com.assovio.holerize_api.api.controller;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,12 +13,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -34,12 +33,11 @@ import com.assovio.holerize_api.api.infra.security.AESUtil;
 import com.assovio.holerize_api.domain.exceptions.InvalidOperationException;
 import com.assovio.holerize_api.domain.exceptions.RegisterNotFoundException;
 import com.assovio.holerize_api.domain.exceptions.SaldoInsuficienteException;
+import com.assovio.holerize_api.domain.model.PedidoExecucao;
 import com.assovio.holerize_api.domain.model.PedidoImportacao;
 import com.assovio.holerize_api.domain.model.Enums.EnumStatusImportacao;
 import com.assovio.holerize_api.domain.service.PedidoImportacaoService;
 import com.assovio.holerize_api.domain.service.UsuarioService;
-import com.assovio.holerize_api.domain.validator.pedidoimportacao.PedidoImportacaoErrorValid;
-import com.assovio.holerize_api.domain.validator.pedidoimportacao.PedidoImportacaoFinishValid;
 import com.assovio.holerize_api.domain.validator.pedidoimportacao.PedidoImportacaoStoreValid;
 import com.assovio.holerize_api.domain.validator.pedidoimportacao.PedidoImportacaoUpdateValid;
 
@@ -60,27 +58,19 @@ public class PedidoImportacaoController {
     @PostMapping
     public ResponseEntity<PedidoImportacaoResponseDTO> store(@AuthenticationPrincipal UserDetails usuarioLogado, @RequestBody @PedidoImportacaoStoreValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
         
-        var optionalUsuario = usuarioService.getById(requestDTO.getUsuarioId());
+        var optionalUsuario = usuarioService.getUsuarioByLogin(usuarioLogado.getUsername());
 
         if (!optionalUsuario.isPresent())
             throw new InvalidOperationException("Usuário não encontrado!");
 
         var usuario = optionalUsuario.get();
+        int newSaldo = optionalUsuario.get().getCreditos() - requestDTO.getQuantidadeAnosSolicitados();
         
-        if (!hasAuthority(usuarioLogado, "ROLE_BOT")){
-            if (usuarioLogado.getUsername().equals(usuario.getLogin())){
-                int newSaldo = optionalUsuario.get().getCreditos() - requestDTO.getQuantidadeAnosSolicitados();
-                
-                if (newSaldo < 0)
-                    throw new SaldoInsuficienteException("Saldo insuficiente para importação");
-    
-                usuario.setCreditos(newSaldo);
-                usuario = usuarioService.save(usuario);
-            }
-            else{
-                throw new InvalidOperationException("Usuário logado não representa id de usuário fornecido");
-            }
-        }
+        if (newSaldo < 0)
+            throw new SaldoInsuficienteException("Saldo insuficiente para importação");
+
+        usuario.setCreditos(newSaldo);
+        usuario = usuarioService.save(usuario);
 
         PedidoImportacao newPedidoImportacao = pedidoImportacaoAssembler.toStoreEntity(requestDTO);
         var dataAte = getPeriodoAte(newPedidoImportacao.getMesDe(), newPedidoImportacao.getAnoDe(), newPedidoImportacao.getQuantidadeAnosSolicitados());
@@ -88,6 +78,9 @@ public class PedidoImportacaoController {
         newPedidoImportacao.setAnoAte(dataAte.getYear());
         newPedidoImportacao.setUsuario(usuario);
         newPedidoImportacao.setSenha(passwordEncoder.encrypt(newPedidoImportacao.getSenha()));
+        Set<PedidoExecucao> setPedidosExecucao = new HashSet<>();
+        setPedidosExecucao.add(new PedidoExecucao(newPedidoImportacao));
+        newPedidoImportacao.setPedidosExecucao(setPedidosExecucao);
         newPedidoImportacao = pedidoImportacaoService.save(newPedidoImportacao);
         var dto = pedidoImportacaoAssembler.toDto(newPedidoImportacao);
         dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
@@ -113,21 +106,6 @@ public class PedidoImportacaoController {
         return new ResponseEntity<Page<PedidoImportacaoResponseSimpleDTO>>(response, HttpStatus.OK);
     }
 
-    @GetMapping("proximo")
-    public ResponseEntity<PedidoImportacaoResponseDTO> next() throws Exception {
-        var optionalPedido = pedidoImportacaoService.getNext();
-
-        if (!optionalPedido.isPresent())
-            throw new RegisterNotFoundException("Não encontrado próximo registro na fila");
-
-        var pedido = optionalPedido.get();
-        pedido.setStatus(EnumStatusImportacao.EM_ANDAMENTO);
-        pedido = pedidoImportacaoService.save(pedido);
-        var dto = pedidoImportacaoAssembler.toDto(pedido);
-        dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
-        return new ResponseEntity<PedidoImportacaoResponseDTO>(dto, HttpStatus.OK);
-    }
-
     @GetMapping("{uuid}")
     public ResponseEntity<PedidoImportacaoResponseDTO> show(@PathVariable String uuid) throws Exception {
         var optionalPedido = pedidoImportacaoService.getByUuid(uuid);
@@ -148,34 +126,38 @@ public class PedidoImportacaoController {
         if (!optionalPedido.isPresent())
             throw new RegisterNotFoundException("Pedido de importação não encontrado");
 
-        var optionalUsuario = usuarioService.getById(requestDTO.getUsuarioId());
+        if (!optionalPedido.get().getStatus().equals(EnumStatusImportacao.NA_FILA))
+            throw new InvalidOperationException("Status atual do pedido é inválido para esta operação");
+
+        var optionalUsuario = usuarioService.getUsuarioByLogin(usuarioLogado.getUsername());
 
         if (!optionalUsuario.isPresent())
             throw new InvalidOperationException("Usuário não encontrado!");
 
         var usuario = optionalUsuario.get();
+        int newSaldo = optionalUsuario.get().getCreditos() - requestDTO.getQuantidadeAnosSolicitados();
+        
+        if (newSaldo < 0)
+            throw new SaldoInsuficienteException("Saldo insuficiente para importação");
 
-        if (!hasAuthority(usuarioLogado, "ROLE_BOT")){
-            if (usuarioLogado.getUsername().equals(usuario.getLogin())){
-                int newSaldo = optionalUsuario.get().getCreditos() - requestDTO.getQuantidadeAnosSolicitados();
-                
-                if (newSaldo < 0)
-                    throw new SaldoInsuficienteException("Saldo insuficiente para importação");
-
-                usuario.setCreditos(newSaldo);
-                usuario = usuarioService.save(usuario);
-            }
-            else{
-                throw new InvalidOperationException("Usuário logado não representa id de usuário fornecido");
-            }
-        }
-
+        usuario.setCreditos(newSaldo);
+        usuario = usuarioService.save(usuario);
+        
         var pedidoImportacao = optionalPedido.get();
         pedidoImportacao = pedidoImportacaoAssembler.toUpdateEntity(requestDTO, pedidoImportacao);
         var dataAte = getPeriodoAte(pedidoImportacao.getMesDe(), pedidoImportacao.getAnoDe(), pedidoImportacao.getQuantidadeAnosSolicitados());
         pedidoImportacao.setMesAte(dataAte.getMonthValue());
         pedidoImportacao.setAnoAte(dataAte.getYear());
         pedidoImportacao.setSenha(passwordEncoder.encrypt(pedidoImportacao.getSenha()));
+        for (var pedidoExecucao : pedidoImportacao.getPedidosExecucao()) {
+            pedidoExecucao.setStatus(pedidoImportacao.getStatus());
+            pedidoExecucao.setMesDe(pedidoImportacao.getMesDe());
+            pedidoExecucao.setAnoDe(pedidoImportacao.getAnoDe());
+            pedidoExecucao.setMesAte(pedidoImportacao.getMesAte());
+            pedidoExecucao.setAnoAte(pedidoImportacao.getAnoAte());
+            pedidoExecucao.setLog(pedidoImportacao.getLog());
+            pedidoExecucao.setTipoErro(pedidoImportacao.getTipoErro());
+        }
         pedidoImportacao = pedidoImportacaoService.save(pedidoImportacao);
         var dto = pedidoImportacaoAssembler.toDto(pedidoImportacao);
         dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
@@ -192,55 +174,6 @@ public class PedidoImportacaoController {
         var pedidoImportacao = optionalPedido.get();
         pedidoImportacaoService.logicalDelete(pedidoImportacao);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @PatchMapping("{uuid}/finalizado")
-    public ResponseEntity<PedidoImportacaoResponseDTO> finish(@PathVariable String uuid, @RequestBody @PedidoImportacaoFinishValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
-        var optionalPedido = pedidoImportacaoService.getByUuid(uuid);
-
-        if (!optionalPedido.isPresent())
-            throw new RegisterNotFoundException("Pedido de importação não encontrado");
-        else if (optionalPedido.get().getStatus() != EnumStatusImportacao.EM_ANDAMENTO)
-            throw new InvalidOperationException("Status da importação inválido para a operação atual!");
-
-        var pedidoImportacao = optionalPedido.get();
-        pedidoImportacao = pedidoImportacaoAssembler.toFinishEntity(requestDTO, pedidoImportacao);
-        pedidoImportacao.setStatus(EnumStatusImportacao.CONCLUIDO);
-        int refund = pedidoImportacao.getQuantidadeAnosSolicitados() - pedidoImportacao.getQuantidadeAnosBaixados();
-
-        if (refund > 0){
-            pedidoImportacao.getUsuario().setCreditos(pedidoImportacao.getUsuario().getCreditos() + refund);
-            usuarioService.save(pedidoImportacao.getUsuario());
-        }
-        
-        pedidoImportacao = pedidoImportacaoService.save(pedidoImportacao);
-        var dto = pedidoImportacaoAssembler.toDto(pedidoImportacao);
-        dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
-        return new ResponseEntity<PedidoImportacaoResponseDTO>(dto, HttpStatus.OK);
-    }
-
-    @PatchMapping("{uuid}/erro")
-    public ResponseEntity<PedidoImportacaoResponseDTO> error(@PathVariable String uuid, @RequestBody @PedidoImportacaoErrorValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
-        var optionalPedido = pedidoImportacaoService.getByUuid(uuid);
-
-        if (!optionalPedido.isPresent())
-            throw new RegisterNotFoundException("Pedido de importação não encontrado");
-        else if (optionalPedido.get().getStatus() != EnumStatusImportacao.EM_ANDAMENTO)
-            throw new InvalidOperationException("Status da importação inválido para a operação atual!");
-
-        var pedidoImportacao = optionalPedido.get();
-        pedidoImportacao = pedidoImportacaoAssembler.toErrorEntity(requestDTO, pedidoImportacao);
-        pedidoImportacao.setStatus(EnumStatusImportacao.ERRO);
-        pedidoImportacao = pedidoImportacaoService.save(pedidoImportacao);
-        var dto = pedidoImportacaoAssembler.toDto(pedidoImportacao);
-        dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
-        return new ResponseEntity<PedidoImportacaoResponseDTO>(dto, HttpStatus.OK);
-    }
-
-    private boolean hasAuthority(UserDetails userDetails, String authority) {
-        Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
-        return authorities.stream()
-            .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(authority));
     }
 
     private ZonedDateTime getPeriodoAte(int mesDe, int anoDe, int quantidadeAnosSolicitados){

@@ -12,12 +12,18 @@ import org.springframework.data.repository.CrudRepository;
 
 import com.assovio.holerize_api.domain.model.TimeStamp;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
+@Transactional
 public abstract class GenericService<Entity extends TimeStamp, Dao extends CrudRepository<Entity, TypeId>, TypeId> {
     
     @Autowired
     protected Dao dao;
+
+    @PersistenceContext
+    protected EntityManager entityManager;
 
     public List<Entity> getAll(){
         return StreamSupport.stream(dao.findAll().spliterator(), false).collect(Collectors.toList());
@@ -27,19 +33,18 @@ public abstract class GenericService<Entity extends TimeStamp, Dao extends CrudR
         return dao.findById(id);
     }
 
-    @Transactional
     public Entity save(Entity entity){
-        return dao.save(entity);
+        var savedEntity = dao.save(entity);
+        entityManager.refresh(savedEntity);
+        return savedEntity;
     }
 
-    @Transactional
     public void delete(Entity entity){
         dao.delete(entity);
     }
 
-    @Transactional
     public void logicalDelete(Entity entity){
         entity.setDeletedAt(OffsetDateTime.now().toInstant().atOffset(ZoneOffset.ofHours(3)));
-        var a = save(entity);
+        save(entity);
     }
 }

@@ -17,16 +17,16 @@ public class PedidoImportacaoResponseSimpleDTO {
     private EnumStatusImportacao status;
 
     @JsonProperty("mes_de")
-    private Integer mesDe;
+    private Integer mesDeBaixado;
 
     @JsonProperty("ano_de")
-    private Integer anoDe;
+    private Integer anoDeBaixado;
 
     @JsonProperty("mes_ate")
-    private Integer mesAte;
+    private Integer mesAteBaixado;
 
     @JsonProperty("ano_ate")
-    private Integer anoAte;
+    private Integer anoAteBaixado;
 
     @JsonProperty("quantidade_anos_solicitados")
     private Integer quantidadeAnosSolicitados;

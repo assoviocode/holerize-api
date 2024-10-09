@@ -37,13 +37,6 @@ public class PedidoImportacaoStoreValidator implements ConstraintValidator<Pedid
                 .addConstraintViolation();
             
             return false;
-        } else if (value.getUsuarioId() == null){
-            context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("O campo usuario_id não pode ser nulo")
-                .addPropertyNode("usuario_id")
-                .addConstraintViolation();
-            
-            return false;
         } else if (value.getQuantidadeAnosSolicitados() == null){
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("O campo quantidade_anos_solicitados não pode ser nulo")

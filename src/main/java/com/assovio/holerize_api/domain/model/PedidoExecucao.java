@@ -1,7 +1,5 @@
 package com.assovio.holerize_api.domain.model;
 
-import java.util.Set;
-
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLRestriction;
@@ -18,23 +16,25 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "pedido_importacao")
+@Table(name = "pedido_execucao")
 @SQLRestriction(value = "deleted_at is null")
 @DynamicInsert
 @DynamicUpdate
-public class PedidoImportacao extends TimeStamp {
-
+@NoArgsConstructor
+@AllArgsConstructor
+public class PedidoExecucao extends TimeStamp {
+    
     @EqualsAndHashCode.Include
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,11 +43,9 @@ public class PedidoImportacao extends TimeStamp {
     @Column(name = "uuid", nullable = false, unique = true)
     private String uuid;
 
-    @Column(name = "cpf", nullable = false)
-    private String cpf;
-
-    @Column(name = "senha", nullable = false)
-    private String senha;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "pedido_importacao_id", nullable = false)
+    private PedidoImportacao pedidoImportacao;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -56,8 +54,8 @@ public class PedidoImportacao extends TimeStamp {
     @Column(name = "log")
     private String log;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "tipo_erro")
+    @Enumerated(EnumType.STRING)
     private EnumErrorType tipoErro;
 
     @Column(name = "mes_de")
@@ -72,33 +70,12 @@ public class PedidoImportacao extends TimeStamp {
     @Column(name = "ano_ate")
     private Integer anoAte;
 
-    @Column(name = "mes_de_baixado")
-    private Integer mesDeBaixado;
-
-    @Column(name = "ano_de_baixado")
-    private Integer anoDeBaixado;
-
-    @Column(name = "mes_ate_baixado")
-    private Integer mesAteBaixado;
-
-    @Column(name = "ano_ate_baixado")
-    private Integer anoAteBaixado;
-
-    @Column(name = "quantidade_anos_solicitados", nullable = false)
-    private Integer quantidadeAnosSolicitados;
-
-    @Column(name = "quantidade_anos_baixados")
-    private Integer quantidadeAnosBaixados;
-
-    @Lob
-    @Column(name = "file")
-    private byte[] file;
-
-    @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
-
-    @OneToMany(mappedBy = "pedidoImportacao", cascade = CascadeType.ALL)
-    private Set<PedidoExecucao> pedidosExecucao;
-
+    public PedidoExecucao(PedidoImportacao pedidoImportacao) {
+        super();
+        setPedidoImportacao(pedidoImportacao);
+        setMesDe(pedidoImportacao.getMesDe());
+        setAnoDe(pedidoImportacao.getAnoDe());
+        setMesAte(pedidoImportacao.getMesAte());
+        setAnoAte(pedidoImportacao.getAnoAte());
+    }
 }

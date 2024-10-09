@@ -1,5 +1,7 @@
 package com.assovio.holerize_api.domain.service;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Optional;
 
@@ -11,24 +13,11 @@ import com.assovio.holerize_api.domain.dao.PedidoImportacaoDAO;
 import com.assovio.holerize_api.domain.model.PedidoImportacao;
 import com.assovio.holerize_api.domain.model.Enums.EnumStatusImportacao;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
 @Service
+@Transactional
 public class PedidoImportacaoService extends GenericService<PedidoImportacao, PedidoImportacaoDAO, Long> {
-
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    @Override
-    @Transactional
-    public PedidoImportacao save(PedidoImportacao entity){
-        PedidoImportacao savedEntity = dao.save(entity);
-        entityManager.flush();
-        entityManager.clear();
-        return getById(savedEntity.getId()).orElse(null);
-    }
 
     public Optional<PedidoImportacao> getByUuid(String uuid){
         return dao.findFirstByUuid(uuid);
@@ -44,6 +33,14 @@ public class PedidoImportacaoService extends GenericService<PedidoImportacao, Pe
         if (cpf != null)
             cpfWithoutMask = cpf.replaceAll("[^0-9]", "").replaceFirst("^0+", "");
         return dao.findByFilters(usuarioId, cpfWithoutMask, status, dataInicial, pageable);
+    }
+
+    @Override
+    public void logicalDelete(PedidoImportacao entity) {
+        for (var pedidoExecucao : entity.getPedidosExecucao()) {
+            pedidoExecucao.setDeletedAt(OffsetDateTime.now().toInstant().atOffset(ZoneOffset.ofHours(3)));
+        }
+        super.logicalDelete(entity);
     }
 
 }

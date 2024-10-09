@@ -86,10 +86,14 @@ public class PedidoImportacaoAssembler {
             mapper.skip(PedidoImportacao::setCpf);
             mapper.skip(PedidoImportacao::setSenha);
             mapper.skip(PedidoImportacao::setStatus);
-            mapper.skip(PedidoImportacao::setLog);
             mapper.skip(PedidoImportacao::setTipoErro);
+            mapper.skip(PedidoImportacao::setLog);
             mapper.skip(PedidoImportacao::setFile);
             mapper.skip(PedidoImportacao::setUsuario);
+            mapper.<Integer>map(src -> src.getMesDe(), (des, value) -> des.setAnoDeBaixado(value));
+            mapper.<Integer>map(src -> src.getAnoDe(), (des, value) -> des.setAnoDeBaixado(value));
+            mapper.<Integer>map(src -> src.getMesAte(), (des, value) -> des.setMesAteBaixado(value));
+            mapper.<Integer>map(src -> src.getAnoAte(), (des, value) -> des.setAnoAteBaixado(value));
         });
         modelMapper.map(requestDTO, entity);
         entity.setFile(requestDTO.getFile());
