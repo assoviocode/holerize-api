@@ -21,6 +21,9 @@ import com.assovio.holerize_api.domain.model.Enums.EnumStatusImportacao;
 import com.assovio.holerize_api.domain.service.PedidoExecucaoService;
 import com.assovio.holerize_api.domain.service.PedidoImportacaoService;
 import com.assovio.holerize_api.domain.service.UsuarioService;
+import com.assovio.holerize_api.domain.validator.pedidoexecucao.PedidoExecucaoErrorValid;
+import com.assovio.holerize_api.domain.validator.pedidoexecucao.PedidoExecucaoFinishValid;
+import com.assovio.holerize_api.domain.validator.pedidoexecucao.PedidoExecucaoStoreValid;
 
 import lombok.AllArgsConstructor;
 
@@ -37,7 +40,7 @@ public class PedidoExecucaoController {
     private AESUtil passwordEncoder;
 
     @PostMapping
-    public ResponseEntity<PedidoExecucaoResponseDTO> store(@RequestBody PedidoExecucaoRequestDTO requestDTO) throws Exception {
+    public ResponseEntity<PedidoExecucaoResponseDTO> store(@RequestBody @PedidoExecucaoStoreValid PedidoExecucaoRequestDTO requestDTO) throws Exception {
         var optionalPedidoImportacao = pedidoImportacaoService.getByUuid(requestDTO.getPedidoImportacaoUuid());
 
         if (!optionalPedidoImportacao.isPresent())
@@ -72,7 +75,7 @@ public class PedidoExecucaoController {
     }
 
     @PatchMapping("{uuid}/finalizado")
-    public ResponseEntity<PedidoExecucaoResponseDTO> finish(@PathVariable String uuid, @RequestBody PedidoExecucaoRequestDTO requestDTO) throws Exception {
+    public ResponseEntity<PedidoExecucaoResponseDTO> finish(@PathVariable String uuid, @RequestBody @PedidoExecucaoFinishValid PedidoExecucaoRequestDTO requestDTO) throws Exception {
         var optionalPedidoExecucao = pedidoExecucaoService.getByUuid(uuid);
 
         if (!optionalPedidoExecucao.isPresent())
@@ -98,7 +101,7 @@ public class PedidoExecucaoController {
     }
 
     @PatchMapping("{uuid}/erro")
-    public ResponseEntity<PedidoExecucaoResponseDTO> error(@PathVariable String uuid, @RequestBody PedidoExecucaoRequestDTO requestDTO) throws Exception {
+    public ResponseEntity<PedidoExecucaoResponseDTO> error(@PathVariable String uuid, @RequestBody @PedidoExecucaoErrorValid PedidoExecucaoRequestDTO requestDTO) throws Exception {
         var optionalPedidoExecucao = pedidoExecucaoService.getByUuid(uuid);
 
         if (!optionalPedidoExecucao.isPresent())

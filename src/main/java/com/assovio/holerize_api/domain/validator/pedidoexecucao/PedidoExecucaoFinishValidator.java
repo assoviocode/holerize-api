@@ -1,14 +1,14 @@
-package com.assovio.holerize_api.domain.validator.pedidoimportacao;
+package com.assovio.holerize_api.domain.validator.pedidoexecucao;
 
-import com.assovio.holerize_api.api.dto.request.PedidoImportacaoRequestDTO;
+import com.assovio.holerize_api.api.dto.request.PedidoExecucaoRequestDTO;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class PedidoImportacaoFinishValidator implements ConstraintValidator<PedidoImportacaoFinishValid, PedidoImportacaoRequestDTO> {
+public class PedidoExecucaoFinishValidator implements ConstraintValidator<PedidoExecucaoFinishValid, PedidoExecucaoRequestDTO> {
 
     @Override
-    public boolean isValid(PedidoImportacaoRequestDTO value, ConstraintValidatorContext context) {
+    public boolean isValid(PedidoExecucaoRequestDTO value, ConstraintValidatorContext context) {
         if (value.getQuantidadeAnosBaixados() == null){
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("O campo quantidade_anos_baixados não pode ser nulo")

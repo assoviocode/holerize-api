@@ -1,14 +1,14 @@
-package com.assovio.holerize_api.domain.validator.pedidoimportacao;
+package com.assovio.holerize_api.domain.validator.pedidoexecucao;
 
-import com.assovio.holerize_api.api.dto.request.PedidoImportacaoRequestDTO;
+import com.assovio.holerize_api.api.dto.request.PedidoExecucaoRequestDTO;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class PedidoImportacaoErrorValidator implements ConstraintValidator<PedidoImportacaoErrorValid, PedidoImportacaoRequestDTO> {
+public class PedidoExecucaoErrorValidator implements ConstraintValidator<PedidoExecucaoErrorValid, PedidoExecucaoRequestDTO> {
 
     @Override
-    public boolean isValid(PedidoImportacaoRequestDTO value, ConstraintValidatorContext context) {
+    public boolean isValid(PedidoExecucaoRequestDTO value, ConstraintValidatorContext context) {
         if (value.getLog() == null || value.getLog().isBlank()){
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("O campo log não pode ser nulo ou vazio")
