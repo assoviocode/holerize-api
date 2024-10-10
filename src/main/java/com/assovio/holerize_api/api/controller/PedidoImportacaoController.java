@@ -28,13 +28,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.assovio.holerize_api.api.assembler.PedidoImportacaoAssembler;
 import com.assovio.holerize_api.api.dto.request.PedidoImportacaoRequestDTO;
 import com.assovio.holerize_api.api.dto.response.PedidoImportacaoResponseDTO;
-import com.assovio.holerize_api.api.dto.response.PedidoImportacaoResponseSimpleDTO;
 import com.assovio.holerize_api.api.infra.security.AESUtil;
 import com.assovio.holerize_api.domain.exceptions.InvalidOperationException;
 import com.assovio.holerize_api.domain.exceptions.RegisterNotFoundException;
 import com.assovio.holerize_api.domain.exceptions.SaldoInsuficienteException;
 import com.assovio.holerize_api.domain.model.PedidoExecucao;
 import com.assovio.holerize_api.domain.model.PedidoImportacao;
+import com.assovio.holerize_api.domain.model.Enums.EnumErrorType;
 import com.assovio.holerize_api.domain.model.Enums.EnumStatusImportacao;
 import com.assovio.holerize_api.domain.service.PedidoImportacaoService;
 import com.assovio.holerize_api.domain.service.UsuarioService;
@@ -88,22 +88,23 @@ public class PedidoImportacaoController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<PedidoImportacaoResponseSimpleDTO>> index(
+    public ResponseEntity<Page<PedidoImportacaoResponseDTO>> index(
         @AuthenticationPrincipal UserDetails usuario,
         @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
         @RequestParam(name = "size", required = false, defaultValue = "30") Integer size,
         @RequestParam(name = "cpf", required = false) String cpf,
         @RequestParam(name = "status", required = false) EnumStatusImportacao status,
-        @RequestParam(name = "data_inicial", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataInicial
+        @RequestParam(name = "data_inicial", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataInicial,
+        @RequestParam(name = "tipo_erro", required = false) EnumErrorType tipoErro
     ) throws InvalidOperationException {
         var usuarioLogado = usuarioService.getUsuarioByLogin(usuario.getUsername());
         if (!usuarioLogado.isPresent())
             throw new InvalidOperationException("Usuário não identificado");
             
         Pageable pageable = PageRequest.of(page, size);
-        Page<PedidoImportacao> pedidoImportacaoPage = pedidoImportacaoService.getByFilters(usuarioLogado.get().getId(), cpf, status, dataInicial, pageable);
-        Page<PedidoImportacaoResponseSimpleDTO> response = pedidoImportacaoAssembler.toPageSimpleDTO(pedidoImportacaoPage);
-        return new ResponseEntity<Page<PedidoImportacaoResponseSimpleDTO>>(response, HttpStatus.OK);
+        Page<PedidoImportacao> pedidoImportacaoPage = pedidoImportacaoService.getByFilters(usuarioLogado.get().getId(), cpf, status, tipoErro, dataInicial, pageable);
+        Page<PedidoImportacaoResponseDTO> response = pedidoImportacaoAssembler.toPageDTO(pedidoImportacaoPage);
+        return new ResponseEntity<Page<PedidoImportacaoResponseDTO>>(response, HttpStatus.OK);
     }
 
     @GetMapping("{uuid}")

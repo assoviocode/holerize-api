@@ -45,7 +45,4 @@ public class PedidoImportacaoResponseDTO {
     private Integer quantidadeAnosBaixados;
 
     private byte[] file;
-
-    @JsonProperty("usuario_id")
-    private Long usuarioId;
 }

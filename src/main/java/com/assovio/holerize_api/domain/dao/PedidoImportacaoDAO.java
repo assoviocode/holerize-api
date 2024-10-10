@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import com.assovio.holerize_api.domain.model.PedidoImportacao;
+import com.assovio.holerize_api.domain.model.Enums.EnumErrorType;
 import com.assovio.holerize_api.domain.model.Enums.EnumStatusImportacao;
 
 public interface PedidoImportacaoDAO extends CrudRepository<PedidoImportacao, Long>{
@@ -20,8 +21,10 @@ public interface PedidoImportacaoDAO extends CrudRepository<PedidoImportacao, Lo
         "(pi.usuario_id = :usuarioId) AND " +
         "(:cpf IS NULL OR pi.cpf LIKE CONCAT(:cpf, '%')) AND " +
         "(:status IS NULL OR pi.status = :status) AND " +
-        "(:dataInicial IS NULL OR pi.updated_at >= STR_TO_DATE(:dataInicial, '%Y-%m-%d'))", nativeQuery = true)
-    Page<PedidoImportacao> findByFilters(Long usuarioId, String cpf, EnumStatusImportacao status, Date dataInicial,
+        "(:tipoErro IS NULL OR pi.tipo_erro = :tipoErro) AND " +
+        "(:dataInicial IS NULL OR pi.updated_at >= STR_TO_DATE(:dataInicial, '%Y-%m-%d')) AND " +
+        "deleted_at IS NULL", nativeQuery = true)
+    Page<PedidoImportacao> findByFilters(Long usuarioId, String cpf, EnumStatusImportacao status, EnumErrorType tipoErro, Date dataInicial,
             Pageable pageable);
 
     Optional<PedidoImportacao> findFirstByUuid(String uuid);

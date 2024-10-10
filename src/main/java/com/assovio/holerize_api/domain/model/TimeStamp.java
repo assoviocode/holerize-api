@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.Getter;
@@ -13,6 +14,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@MappedSuperclass
 public abstract class TimeStamp {
 
     @CreationTimestamp

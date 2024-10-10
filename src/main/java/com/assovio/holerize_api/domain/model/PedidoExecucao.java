@@ -33,9 +33,9 @@ import lombok.Setter;
 @DynamicUpdate
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class PedidoExecucao extends TimeStamp {
     
-    @EqualsAndHashCode.Include
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

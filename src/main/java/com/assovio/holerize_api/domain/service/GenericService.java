@@ -35,6 +35,7 @@ public abstract class GenericService<Entity extends TimeStamp, Dao extends CrudR
 
     public Entity save(Entity entity){
         var savedEntity = dao.save(entity);
+        entityManager.flush();
         entityManager.refresh(savedEntity);
         return savedEntity;
     }
@@ -45,6 +46,7 @@ public abstract class GenericService<Entity extends TimeStamp, Dao extends CrudR
 
     public void logicalDelete(Entity entity){
         entity.setDeletedAt(OffsetDateTime.now().toInstant().atOffset(ZoneOffset.ofHours(3)));
-        save(entity);
+        dao.save(entity);
+        entityManager.flush();
     }
 }

@@ -5,7 +5,7 @@ import com.assovio.holerize_api.api.dto.request.PedidoExecucaoRequestDTO;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class PedidoExecucaoStoreValidator implements ConstraintValidator<PedidoExecucaoFinishValid, PedidoExecucaoRequestDTO> {
+public class PedidoExecucaoStoreValidator implements ConstraintValidator<PedidoExecucaoStoreValid, PedidoExecucaoRequestDTO> {
 
     @Override
     public boolean isValid(PedidoExecucaoRequestDTO value, ConstraintValidatorContext context) {

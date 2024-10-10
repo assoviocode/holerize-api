@@ -33,9 +33,9 @@ import lombok.Setter;
 @SQLRestriction(value = "deleted_at is null")
 @DynamicInsert
 @DynamicUpdate
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class PedidoImportacao extends TimeStamp {
 
-    @EqualsAndHashCode.Include
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
