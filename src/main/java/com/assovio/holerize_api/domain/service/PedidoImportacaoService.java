@@ -28,12 +28,21 @@ public class PedidoImportacaoService extends GenericService<PedidoImportacao, Pe
         return dao.findFirstByStatusOrderByIdAsc(EnumStatusImportacao.NA_FILA);
     }
 
-    public Page<PedidoImportacao> getByFilters(Long usuarioId, String cpf, EnumStatusImportacao status, EnumErrorType tipoErro, Date dataInicial,
+    public Page<PedidoImportacao> getByFilters(Long usuarioId, String nome, String cpf, EnumStatusImportacao status, EnumErrorType tipoErro, Date dataInicial,
             Pageable pageable) {
         var cpfWithoutMask = cpf;
         if (cpf != null)
             cpfWithoutMask = cpf.replaceAll("[^0-9]", "").replaceFirst("^0+", "");
-        return dao.findByFilters(usuarioId, cpfWithoutMask, status, tipoErro, dataInicial, pageable);
+
+        String statusValue = null;
+        if (status != null)
+            statusValue = status.name();
+
+        String tipoErroValue = null;
+        if (tipoErro != null)
+            tipoErroValue = tipoErro.name();
+
+        return dao.findByFilters(usuarioId, nome, cpfWithoutMask, statusValue, tipoErroValue, dataInicial, pageable);
     }
 
     @Override

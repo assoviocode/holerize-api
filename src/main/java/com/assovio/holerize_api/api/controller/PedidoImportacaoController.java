@@ -92,6 +92,7 @@ public class PedidoImportacaoController {
         @AuthenticationPrincipal UserDetails usuario,
         @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
         @RequestParam(name = "size", required = false, defaultValue = "30") Integer size,
+        @RequestParam(name = "nome", required = false) String nome,
         @RequestParam(name = "cpf", required = false) String cpf,
         @RequestParam(name = "status", required = false) EnumStatusImportacao status,
         @RequestParam(name = "data_inicial", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataInicial,
@@ -102,7 +103,7 @@ public class PedidoImportacaoController {
             throw new InvalidOperationException("Usuário não identificado");
             
         Pageable pageable = PageRequest.of(page, size);
-        Page<PedidoImportacao> pedidoImportacaoPage = pedidoImportacaoService.getByFilters(usuarioLogado.get().getId(), cpf, status, tipoErro, dataInicial, pageable);
+        Page<PedidoImportacao> pedidoImportacaoPage = pedidoImportacaoService.getByFilters(usuarioLogado.get().getId(), nome, cpf, status, tipoErro, dataInicial, pageable);
         Page<PedidoImportacaoResponseDTO> response = pedidoImportacaoAssembler.toPageDTO(pedidoImportacaoPage);
         return new ResponseEntity<Page<PedidoImportacaoResponseDTO>>(response, HttpStatus.OK);
     }
@@ -166,11 +167,14 @@ public class PedidoImportacaoController {
     }
 
     @DeleteMapping("{uuid}")
-    public ResponseEntity<?> destroy(@PathVariable String uuid) throws RegisterNotFoundException {
+    public ResponseEntity<?> destroy(@PathVariable String uuid) throws RegisterNotFoundException, InvalidOperationException {
         var optionalPedido = pedidoImportacaoService.getByUuid(uuid);
         
         if (!optionalPedido.isPresent())
             throw new RegisterNotFoundException("Pedido de importação não encontrado");
+        else if (!optionalPedido.get().getStatus().equals(EnumStatusImportacao.NA_FILA)){
+            throw new InvalidOperationException("Pedido de importação não possui status válido para esta operação");
+        }
 
         var pedidoImportacao = optionalPedido.get();
         pedidoImportacaoService.logicalDelete(pedidoImportacao);

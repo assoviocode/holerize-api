@@ -41,6 +41,7 @@ public class PedidoImportacaoAssembler {
             mapper.skip(PedidoImportacao::setAnoAte);
             mapper.skip(PedidoImportacao::setMesAte);
             mapper.skip(PedidoImportacao::setQuantidadeAnosBaixados);
+            mapper.skip(PedidoImportacao::setTotalVinculosBaixados);
             mapper.skip(PedidoImportacao::setFile);
             mapper.skip(PedidoImportacao::setUsuario);
         });
@@ -61,6 +62,7 @@ public class PedidoImportacaoAssembler {
             mapper.skip(PedidoImportacao::setMesAte);
             mapper.skip(PedidoImportacao::setAnoAte);
             mapper.skip(PedidoImportacao::setQuantidadeAnosBaixados);
+            mapper.skip(PedidoImportacao::setTotalVinculosBaixados);
             mapper.skip(PedidoImportacao::setFile);
             mapper.skip(PedidoImportacao::setUsuario);
         });

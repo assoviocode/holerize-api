@@ -93,6 +93,9 @@ public class PedidoImportacao extends TimeStamp {
     @Column(name = "quantidade_anos_baixados")
     private Integer quantidadeAnosBaixados;
 
+    @Column(name = "total_vinculos_baixados")
+    private Integer totalVinculosBaixados;
+
     @Lob
     @Column(name = "file")
     private byte[] file;
