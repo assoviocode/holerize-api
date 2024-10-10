@@ -29,6 +29,9 @@ public class PedidoExecucaoRequestDTO {
 
     @JsonProperty("quantidade_anos_baixados")
     private Integer quantidadeAnosBaixados;
+
+    @JsonProperty("total_vinculos_baixados")
+    private Integer totalVinculosBaixados;
     
     private byte[] file;
 

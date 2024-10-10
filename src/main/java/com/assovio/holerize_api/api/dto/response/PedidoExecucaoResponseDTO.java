@@ -42,6 +42,9 @@ public class PedidoExecucaoResponseDTO {
     @JsonProperty("quantidade_anos_baixados")
     private Integer quantidadeAnosBaixados;
 
+    @JsonProperty("total_vinculos_baixados")
+    private Integer totalVinculosBaixados;
+
     private byte[] file;
 
     @JsonProperty("pedido_importacao_uuid")
