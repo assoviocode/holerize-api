@@ -10,7 +10,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PedidoImportacaoRequestDTO {
-    
+
+    private String nome;
     private String cpf;
     private String senha;
     private EnumStatusImportacao status;
