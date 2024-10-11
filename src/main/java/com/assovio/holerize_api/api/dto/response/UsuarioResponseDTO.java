@@ -24,4 +24,7 @@ public class UsuarioResponseDTO {
     private String token;
 
     private Integer creditos;
+
+    @JsonProperty("profile_image")
+    private byte[] profileImage;
 }

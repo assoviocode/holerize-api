@@ -19,6 +19,8 @@ public class UsuarioAssembler {
     }
 
     public UsuarioResponseDTO toDto(Usuario usuario) {
-        return strictModelMapper.map(usuario, UsuarioResponseDTO.class);
+        var dto = strictModelMapper.map(usuario, UsuarioResponseDTO.class);
+        dto.setProfileImage(usuario.getProfileImage());
+        return dto;
     }
 }

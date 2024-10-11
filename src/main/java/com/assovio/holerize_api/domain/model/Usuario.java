@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.assovio.holerize_api.domain.model.Enums.EnumRole;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -55,6 +56,9 @@ public class Usuario extends TimeStamp implements UserDetails {
     private String senha;
 
     private Integer creditos;
+
+    @Column(name = "profile_image")
+    private byte[] profileImage;
     
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
