@@ -137,15 +137,14 @@ public class PedidoImportacaoController {
             throw new InvalidOperationException("Usuário não encontrado!");
 
         var usuario = optionalUsuario.get();
-        int newSaldo = optionalUsuario.get().getCreditos() - requestDTO.getQuantidadeAnosSolicitados();
-        
+        var pedidoImportacao = optionalPedido.get();
+        int newSaldo = optionalUsuario.get().getCreditos() + (pedidoImportacao.getQuantidadeAnosSolicitados() - requestDTO.getQuantidadeAnosSolicitados());
+            
         if (newSaldo < 0)
             throw new SaldoInsuficienteException("Saldo insuficiente para importação");
 
         usuario.setCreditos(newSaldo);
         usuario = usuarioService.save(usuario);
-        
-        var pedidoImportacao = optionalPedido.get();
         pedidoImportacao = pedidoImportacaoAssembler.toUpdateEntity(requestDTO, pedidoImportacao);
         var dataAte = getPeriodoAte(pedidoImportacao.getMesDe(), pedidoImportacao.getAnoDe(), pedidoImportacao.getQuantidadeAnosSolicitados());
         pedidoImportacao.setMesAte(dataAte.getMonthValue());
@@ -167,7 +166,7 @@ public class PedidoImportacaoController {
     }
 
     @DeleteMapping("{uuid}")
-    public ResponseEntity<?> destroy(@PathVariable String uuid) throws RegisterNotFoundException, InvalidOperationException {
+    public ResponseEntity<?> destroy(@AuthenticationPrincipal UserDetails usuarioLogado, @PathVariable String uuid) throws RegisterNotFoundException, InvalidOperationException {
         var optionalPedido = pedidoImportacaoService.getByUuid(uuid);
         
         if (!optionalPedido.isPresent())
@@ -177,6 +176,9 @@ public class PedidoImportacaoController {
         }
 
         var pedidoImportacao = optionalPedido.get();
+        var usuario = usuarioService.getUsuarioByLogin(usuarioLogado.getUsername()).get();
+        usuario.setCreditos(usuario.getCreditos() + pedidoImportacao.getQuantidadeAnosSolicitados());
+        usuarioService.save(usuario);
         pedidoImportacaoService.logicalDelete(pedidoImportacao);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
