@@ -112,10 +112,14 @@ public class PedidoExecucaoController {
         var pedidoExecucao = optionalPedidoExecucao.get();
         pedidoExecucao = pedidoExecucaoAssembler.toErrorEntity(requestDTO, pedidoExecucao);
         pedidoExecucao.setStatus(EnumStatusImportacao.ERRO);
-        if (!pedidoExecucao.getTipoErro().equals(EnumErrorType.EXECUCAO)){
+        if (!pedidoExecucao.getTipoErro().equals(EnumErrorType.EXECUCAO) && !pedidoExecucao.getTipoErro().equals(EnumErrorType.SERVICO_INDISPONIVEL)){
             pedidoExecucao.getPedidoImportacao().setLog(pedidoExecucao.getLog());
             pedidoExecucao.getPedidoImportacao().setTipoErro(pedidoExecucao.getTipoErro());
             pedidoExecucao.getPedidoImportacao().setStatus(EnumStatusImportacao.ERRO);
+            
+            var usuario = pedidoExecucao.getPedidoImportacao().getUsuario();
+            usuario.setCreditos(usuario.getCreditos() + pedidoExecucao.getPedidoImportacao().getQuantidadeAnosSolicitados());
+            usuarioService.save(usuario);
         }
         pedidoExecucao = pedidoExecucaoService.save(pedidoExecucao);
         var dto = pedidoExecucaoAssembler.toDto(pedidoExecucao);

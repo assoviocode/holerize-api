@@ -23,7 +23,9 @@ public class PedidoExecucaoAssembler {
             .<Integer>addMapping(src -> src.getPedidoImportacao().getQuantidadeAnosSolicitados(), (des, value) -> des.setQuantidadeAnosSolicitados(value))
             .<Integer>addMapping(src -> src.getPedidoImportacao().getQuantidadeAnosBaixados(), (des, value) -> des.setQuantidadeAnosBaixados(value))
             .<String>addMapping(src -> src.getPedidoImportacao().getUuid(), (des, value) -> des.setPedidoImportacaoUuid(value))
-            .<Integer>addMapping(src -> src.getPedidoImportacao().getTotalVinculosBaixados(), (des, value) -> des.setTotalVinculosBaixados(value));
+            .<Integer>addMapping(src -> src.getPedidoImportacao().getTotalVinculosBaixados(), (des, value) -> des.setTotalVinculosBaixados(value))
+            .<Integer>addMapping(src -> src.getPedidoImportacao().getMesDe(), (des, value) -> des.setMesDePedidoImportacao(value))
+            .<Integer>addMapping(src -> src.getPedidoImportacao().getAnoDe(), (des, value) -> des.setAnoDePedidoImportacao(value));
 
         var dto = modelMapper.map(entity, PedidoExecucaoResponseDTO.class);
         dto.setFile(entity.getPedidoImportacao().getFile());

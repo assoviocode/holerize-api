@@ -24,6 +24,12 @@ public class PedidoExecucaoResponseDTO {
     @JsonProperty("tipo_erro")
     private EnumErrorType tipoErro;
 
+    @JsonProperty("mes_de_pedido_importacao")
+    private Integer mesDePedidoImportacao;
+
+    @JsonProperty("ano_de_pedido_importacao")
+    private Integer anoDePedidoImportacao;
+
     @JsonProperty("mes_de")
     private Integer mesDe;
     
