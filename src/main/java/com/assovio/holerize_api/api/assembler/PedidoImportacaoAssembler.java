@@ -48,51 +48,6 @@ public class PedidoImportacaoAssembler {
         return modelMapper.map(requestDTO, PedidoImportacao.class);
     }
 
-    public PedidoImportacao toErrorEntity(PedidoImportacaoRequestDTO requestDTO, PedidoImportacao entity){
-        ModelMapper modelMapper = new ModelMapper();
-        TimeZone.setDefault(TimeZone.getTimeZone("America/Sao_Paulo"));
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        modelMapper.createTypeMap(PedidoImportacaoRequestDTO.class, PedidoImportacao.class)
-        .addMappings(mapper -> {
-            mapper.skip(PedidoImportacao::setCpf);
-            mapper.skip(PedidoImportacao::setSenha);
-            mapper.skip(PedidoImportacao::setStatus);
-            mapper.skip(PedidoImportacao::setMesDe);
-            mapper.skip(PedidoImportacao::setAnoDe);
-            mapper.skip(PedidoImportacao::setMesAte);
-            mapper.skip(PedidoImportacao::setAnoAte);
-            mapper.skip(PedidoImportacao::setQuantidadeAnosBaixados);
-            mapper.skip(PedidoImportacao::setTotalVinculosBaixados);
-            mapper.skip(PedidoImportacao::setFile);
-            mapper.skip(PedidoImportacao::setUsuario);
-        });
-        modelMapper.map(requestDTO, entity);
-        return entity;
-    }
-
-    public PedidoImportacao toFinishEntity(PedidoImportacaoRequestDTO requestDTO, PedidoImportacao entity){
-        ModelMapper modelMapper = new ModelMapper();
-        TimeZone.setDefault(TimeZone.getTimeZone("America/Sao_Paulo"));
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        modelMapper.createTypeMap(PedidoImportacaoRequestDTO.class, PedidoImportacao.class)
-        .addMappings(mapper -> {
-            mapper.skip(PedidoImportacao::setCpf);
-            mapper.skip(PedidoImportacao::setSenha);
-            mapper.skip(PedidoImportacao::setStatus);
-            mapper.skip(PedidoImportacao::setTipoErro);
-            mapper.skip(PedidoImportacao::setLog);
-            mapper.skip(PedidoImportacao::setFile);
-            mapper.skip(PedidoImportacao::setUsuario);
-            mapper.<Integer>map(src -> src.getMesDe(), (des, value) -> des.setAnoDeBaixado(value));
-            mapper.<Integer>map(src -> src.getAnoDe(), (des, value) -> des.setAnoDeBaixado(value));
-            mapper.<Integer>map(src -> src.getMesAte(), (des, value) -> des.setMesAteBaixado(value));
-            mapper.<Integer>map(src -> src.getAnoAte(), (des, value) -> des.setAnoAteBaixado(value));
-        });
-        modelMapper.map(requestDTO, entity);
-        entity.setFile(requestDTO.getFile());
-        return entity;
-    }
-
     public PedidoImportacao toUpdateEntity(PedidoImportacaoRequestDTO requestDTO, PedidoImportacao entity){
         ModelMapper modelMapper = new ModelMapper();
         TimeZone.setDefault(TimeZone.getTimeZone("America/Sao_Paulo"));
