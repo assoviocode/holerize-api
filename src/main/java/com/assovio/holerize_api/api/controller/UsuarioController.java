@@ -1,54 +1,36 @@
 package com.assovio.holerize_api.api.controller;
 
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.assovio.holerize_api.domain.exceptions.RegisterNotFoundException;
+import com.assovio.holerize_api.domain.model.Usuario;
 import com.assovio.holerize_api.domain.service.UsuarioService;
 
-import com.assovio.holerize_api.api.dto.response.UsuarioResponseDTO;
-import com.assovio.holerize_api.domain.model.Usuario;
 import lombok.AllArgsConstructor;
 
-
-import java.util.Optional;
-
 @RestController
-@RequestMapping("/usuario")
+@RequestMapping("usuarios")
 @AllArgsConstructor
 public class UsuarioController {
 
     private UsuarioService usuarioService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> getUsuarioById(@PathVariable Long id) {
-        Optional<Usuario> usuarioOptional = usuarioService.findById(id);
+    @GetMapping("/{id}/meusCreditos")
+    public ResponseEntity<Integer> showMeusCreditosAtualizados(@PathVariable Long id) throws Exception {
 
+        Optional<Usuario> usuarioOptional = this.usuarioService.getById(id);
 
-        Usuario usuario = usuarioOptional.get();
-        UsuarioResponseDTO usuarioResponseDTO = toUsuarioResponseDTO(usuario);
+        if (!usuarioOptional.isPresent())
+            throw new RegisterNotFoundException("Usuario não encontrado!");
 
-        return ResponseEntity.ok(usuarioResponseDTO);
+        return new ResponseEntity<>(usuarioOptional.get().getCreditos(), HttpStatus.OK);
     }
 
-    private UsuarioResponseDTO toUsuarioResponseDTO(Usuario usuario) {
-        UsuarioResponseDTO usuarioResponseDTO = new UsuarioResponseDTO();
-        usuarioResponseDTO.setId(usuario.getId());
-        usuarioResponseDTO.setNome(usuario.getNome());
-        usuarioResponseDTO.setLogin(usuario.getLogin());
-        usuarioResponseDTO.setEmail(usuario.getEmail());
-        usuarioResponseDTO.setRole(usuario.getRole());
-        usuarioResponseDTO.setCreditos(usuario.getCreditos());
-        usuarioResponseDTO.setProfileImage(usuario.getProfileImage());
-
-        return usuarioResponseDTO;
-    }
 }

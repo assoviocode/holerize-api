@@ -24,12 +24,11 @@ import com.assovio.holerize_api.domain.validator.usuario.UsuarioStoreValid;
 
 import lombok.AllArgsConstructor;
 
-
 @RestController
 @RequestMapping("auth")
 @AllArgsConstructor
 public class AuthController {
-    
+
     private AuthenticationManager authenticationManager;
     private UsuarioService usuarioService;
     private TokenService tokenService;
@@ -38,12 +37,13 @@ public class AuthController {
 
     @PostMapping("login")
     public ResponseEntity<UsuarioResponseDTO> login(@RequestBody @UsuarioLoginValid UsuarioRequestDTO requestDTO) {
-        try{
+        try {
             var optionalUsuario = usuarioService.getUsuarioByLoginOrEmail(requestDTO.getLogin(), requestDTO.getEmail());
             if (!optionalUsuario.isPresent())
                 throw new RuntimeException();
 
-            var usernamePassword = new UsernamePasswordAuthenticationToken(optionalUsuario.get().getLogin(), requestDTO.getSenha());
+            var usernamePassword = new UsernamePasswordAuthenticationToken(optionalUsuario.get().getLogin(),
+                    requestDTO.getSenha());
             var auth = authenticationManager.authenticate(usernamePassword);
             Usuario usuario = (Usuario) auth.getPrincipal();
             UsuarioResponseDTO dto = usuarioAssembler.toDto(usuario);
@@ -52,15 +52,16 @@ public class AuthController {
             if (dto.getToken() != null && !dto.getToken().isBlank())
                 return new ResponseEntity<UsuarioResponseDTO>(dto, HttpStatus.OK);
 
-        } catch (RuntimeException ex){
+        } catch (RuntimeException ex) {
             throw new NotAuthorizedException("Usuário ou senha inválidos!");
         }
 
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
-    
+
     @PostMapping("register")
-    public ResponseEntity<UsuarioResponseDTO> store(@RequestBody @UsuarioStoreValid UsuarioRequestDTO requestDTO) throws BusinessException {
+    public ResponseEntity<UsuarioResponseDTO> store(@RequestBody @UsuarioStoreValid UsuarioRequestDTO requestDTO)
+            throws BusinessException {
         if (usuarioService.getUsuarioByLoginOrEmail(requestDTO.getLogin(), requestDTO.getEmail()).isPresent())
             throw new InvalidOperationException("Já existe um usuário cadastrado com este login");
 
@@ -70,5 +71,5 @@ public class AuthController {
         UsuarioResponseDTO dto = usuarioAssembler.toDto(usuario);
         return new ResponseEntity<UsuarioResponseDTO>(dto, HttpStatus.CREATED);
     }
-    
+
 }

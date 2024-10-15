@@ -27,7 +27,6 @@ import com.assovio.holerize_api.domain.validator.pedidoexecucao.PedidoExecucaoSt
 
 import lombok.AllArgsConstructor;
 
-
 @AllArgsConstructor
 @RestController
 @RequestMapping("pedidosExecucao")
@@ -40,14 +39,15 @@ public class PedidoExecucaoController {
     private AESUtil passwordEncoder;
 
     @PostMapping
-    public ResponseEntity<PedidoExecucaoResponseDTO> store(@RequestBody @PedidoExecucaoStoreValid PedidoExecucaoRequestDTO requestDTO) throws Exception {
+    public ResponseEntity<PedidoExecucaoResponseDTO> store(
+            @RequestBody @PedidoExecucaoStoreValid PedidoExecucaoRequestDTO requestDTO) throws Exception {
         var optionalPedidoImportacao = pedidoImportacaoService.getByUuid(requestDTO.getPedidoImportacaoUuid());
 
         if (!optionalPedidoImportacao.isPresent())
             throw new RegisterNotFoundException("Pedido de importação não encontrado");
         else if (!optionalPedidoImportacao.get().getStatus().equals(EnumStatusImportacao.EM_ANDAMENTO))
             throw new InvalidOperationException("Pedido de importação possui status que impede esta operação");
-        
+
         var pedidoExecucao = pedidoExecucaoAssembler.toStoreEntity(requestDTO);
         pedidoExecucao.setPedidoImportacao(optionalPedidoImportacao.get());
         pedidoExecucaoService.save(pedidoExecucao);
@@ -55,8 +55,7 @@ public class PedidoExecucaoController {
         dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
         return new ResponseEntity<PedidoExecucaoResponseDTO>(dto, HttpStatus.CREATED);
     }
-    
-    
+
     @GetMapping("proximo")
     public ResponseEntity<PedidoExecucaoResponseDTO> next() throws Exception {
         var optionalPedido = pedidoExecucaoService.getNext();
@@ -75,7 +74,8 @@ public class PedidoExecucaoController {
     }
 
     @PatchMapping("{uuid}/finalizado")
-    public ResponseEntity<PedidoExecucaoResponseDTO> finish(@PathVariable String uuid, @RequestBody @PedidoExecucaoFinishValid PedidoExecucaoRequestDTO requestDTO) throws Exception {
+    public ResponseEntity<PedidoExecucaoResponseDTO> finish(@PathVariable String uuid,
+            @RequestBody @PedidoExecucaoFinishValid PedidoExecucaoRequestDTO requestDTO) throws Exception {
         var optionalPedidoExecucao = pedidoExecucaoService.getByUuid(uuid);
 
         if (!optionalPedidoExecucao.isPresent())
@@ -87,13 +87,15 @@ public class PedidoExecucaoController {
         pedidoExecucao = pedidoExecucaoAssembler.toFinishEntity(requestDTO, pedidoExecucao);
         pedidoExecucao.setStatus(EnumStatusImportacao.CONCLUIDO);
         pedidoExecucao.getPedidoImportacao().setStatus(EnumStatusImportacao.CONCLUIDO);
-        int refund = pedidoExecucao.getPedidoImportacao().getQuantidadeAnosSolicitados() - pedidoExecucao.getPedidoImportacao().getQuantidadeAnosBaixados();
+        int refund = pedidoExecucao.getPedidoImportacao().getQuantidadeAnosSolicitados()
+                - pedidoExecucao.getPedidoImportacao().getQuantidadeAnosBaixados();
 
-        if (refund > 0){
-            pedidoExecucao.getPedidoImportacao().getUsuario().setCreditos(pedidoExecucao.getPedidoImportacao().getUsuario().getCreditos() + refund);
+        if (refund > 0) {
+            pedidoExecucao.getPedidoImportacao().getUsuario()
+                    .setCreditos(pedidoExecucao.getPedidoImportacao().getUsuario().getCreditos() + refund);
             usuarioService.save(pedidoExecucao.getPedidoImportacao().getUsuario());
         }
-        
+
         pedidoExecucao = pedidoExecucaoService.save(pedidoExecucao);
         var dto = pedidoExecucaoAssembler.toDto(pedidoExecucao);
         dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
@@ -101,7 +103,8 @@ public class PedidoExecucaoController {
     }
 
     @PatchMapping("{uuid}/erro")
-    public ResponseEntity<PedidoExecucaoResponseDTO> error(@PathVariable String uuid, @RequestBody @PedidoExecucaoErrorValid PedidoExecucaoRequestDTO requestDTO) throws Exception {
+    public ResponseEntity<PedidoExecucaoResponseDTO> error(@PathVariable String uuid,
+            @RequestBody @PedidoExecucaoErrorValid PedidoExecucaoRequestDTO requestDTO) throws Exception {
         var optionalPedidoExecucao = pedidoExecucaoService.getByUuid(uuid);
 
         if (!optionalPedidoExecucao.isPresent())
@@ -112,14 +115,11 @@ public class PedidoExecucaoController {
         var pedidoExecucao = optionalPedidoExecucao.get();
         pedidoExecucao = pedidoExecucaoAssembler.toErrorEntity(requestDTO, pedidoExecucao);
         pedidoExecucao.setStatus(EnumStatusImportacao.ERRO);
-        if (!pedidoExecucao.getTipoErro().equals(EnumErrorType.EXECUCAO) && !pedidoExecucao.getTipoErro().equals(EnumErrorType.SERVICO_INDISPONIVEL)){
+        if (!pedidoExecucao.getTipoErro().equals(EnumErrorType.EXECUCAO)
+                && !pedidoExecucao.getTipoErro().equals(EnumErrorType.SERVICO_INDISPONIVEL)) {
             pedidoExecucao.getPedidoImportacao().setLog(pedidoExecucao.getLog());
             pedidoExecucao.getPedidoImportacao().setTipoErro(pedidoExecucao.getTipoErro());
             pedidoExecucao.getPedidoImportacao().setStatus(EnumStatusImportacao.ERRO);
-            
-            var usuario = pedidoExecucao.getPedidoImportacao().getUsuario();
-            usuario.setCreditos(usuario.getCreditos() + pedidoExecucao.getPedidoImportacao().getQuantidadeAnosSolicitados());
-            usuarioService.save(usuario);
         }
         pedidoExecucao = pedidoExecucaoService.save(pedidoExecucao);
         var dto = pedidoExecucaoAssembler.toDto(pedidoExecucao);

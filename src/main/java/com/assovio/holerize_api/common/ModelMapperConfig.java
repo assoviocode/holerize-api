@@ -12,7 +12,7 @@ import com.assovio.holerize_api.domain.model.Usuario;
 
 @Configuration
 public class ModelMapperConfig {
-    
+
     @Bean
     public ModelMapper strictModelMapper() {
         ModelMapper modelMapperStrict = new ModelMapper();
@@ -20,11 +20,11 @@ public class ModelMapperConfig {
         modelMapperStrict.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         modelMapperStrict.createTypeMap(Usuario.class, UsuarioResponseDTO.class)
-            .addMappings(mapper -> {
-                mapper.skip(UsuarioResponseDTO::setProfileImage);
-            });
+                .addMappings(mapper -> {
+                    mapper.skip(UsuarioResponseDTO::setProfileImage);
+                });
 
         return modelMapperStrict;
     }
-    
+
 }
