@@ -68,15 +68,18 @@ public class Usuario extends TimeStamp implements UserDetails {
     public Integer getCreditos() {
         Integer creditoGasto = 0;
 
-        for (PedidoImportacao pedidoImportacao : pedidosImportacao) {
+        for (PedidoImportacao pedidoImportacao : this.pedidosImportacao) {
 
             switch (pedidoImportacao.getStatus()) {
                 case NA_FILA:
                     creditoGasto += pedidoImportacao.getQuantidadeAnosSolicitados();
+                    break;
                 case EM_ANDAMENTO:
                     creditoGasto += pedidoImportacao.getQuantidadeAnosSolicitados();
+                    break;
                 case CONCLUIDO:
                     creditoGasto += Objects.requireNonNullElse(pedidoImportacao.getQuantidadeAnosBaixados(), 0);
+                    break;
                 default:
                     break;
             }
