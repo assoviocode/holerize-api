@@ -32,6 +32,7 @@ import com.assovio.holerize_api.api.dto.response.PedidoImportacaoResponseDTO;
 import com.assovio.holerize_api.api.infra.security.AESUtil;
 import com.assovio.holerize_api.domain.exceptions.InvalidOperationException;
 import com.assovio.holerize_api.domain.exceptions.RegisterNotFoundException;
+import com.assovio.holerize_api.domain.exceptions.SaldoInsuficienteException;
 import com.assovio.holerize_api.domain.model.PedidoExecucao;
 import com.assovio.holerize_api.domain.model.PedidoImportacao;
 import com.assovio.holerize_api.domain.model.Enums.EnumErrorType;
@@ -63,6 +64,10 @@ public class PedidoImportacaoController {
             throw new InvalidOperationException("Usuário não encontrado!");
 
         var usuario = optionalUsuario.get();
+
+        if (usuario.getCreditos() < requestDTO.getQuantidadeAnosSolicitados()) {
+            throw new SaldoInsuficienteException("Saldo insuficiente!");
+        }
 
         PedidoImportacao newPedidoImportacao = pedidoImportacaoAssembler.toStoreEntity(requestDTO);
         var dataAte = getPeriodoAte(newPedidoImportacao.getMesDe(), newPedidoImportacao.getAnoDe(),
@@ -126,8 +131,8 @@ public class PedidoImportacaoController {
 
     @PutMapping("{uuid}")
     public ResponseEntity<PedidoImportacaoResponseDTO> update(@PathVariable String uuid,
-            @AuthenticationPrincipal UserDetails usuarioLogado,
             @RequestBody @PedidoImportacaoUpdateValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
+
         var optionalPedido = pedidoImportacaoService.getByUuid(uuid);
 
         if (!optionalPedido.isPresent())
@@ -137,6 +142,21 @@ public class PedidoImportacaoController {
             throw new InvalidOperationException("Status atual do pedido é inválido para esta operação");
 
         var pedidoImportacao = optionalPedido.get();
+
+        Integer creditoTotalUsuario = pedidoImportacao.getUsuario().getCreditos();
+
+        Integer novaQuantidadeSolicitada = requestDTO.getQuantidadeAnosSolicitados();
+
+        Integer antigaQuantidadeSolicitada = pedidoImportacao.getQuantidadeAnosSolicitados();
+
+        if (novaQuantidadeSolicitada > antigaQuantidadeSolicitada) {
+
+            if (creditoTotalUsuario < (novaQuantidadeSolicitada - antigaQuantidadeSolicitada)) {
+                throw new SaldoInsuficienteException("Saldo insuficiente!");
+            }
+
+        }
+
         pedidoImportacao = pedidoImportacaoAssembler.toUpdateEntity(requestDTO, pedidoImportacao);
         var dataAte = getPeriodoAte(pedidoImportacao.getMesDe(), pedidoImportacao.getAnoDe(),
                 pedidoImportacao.getQuantidadeAnosSolicitados());
