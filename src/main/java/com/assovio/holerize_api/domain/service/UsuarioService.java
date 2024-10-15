@@ -22,4 +22,8 @@ public class UsuarioService extends GenericService<Usuario, UsuarioDAO, Long> {
     public Optional<Usuario> getUsuarioByLogin(String login){
         return dao.findFirstByLogin(login);
     }
+
+    public Optional<Usuario> findById(Long id) {
+        return dao.findById(id);
+    }
 }

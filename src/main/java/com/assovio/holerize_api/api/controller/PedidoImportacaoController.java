@@ -40,6 +40,8 @@ import com.assovio.holerize_api.domain.service.PedidoImportacaoService;
 import com.assovio.holerize_api.domain.service.UsuarioService;
 import com.assovio.holerize_api.domain.validator.pedidoimportacao.PedidoImportacaoStoreValid;
 import com.assovio.holerize_api.domain.validator.pedidoimportacao.PedidoImportacaoUpdateValid;
+import org.springframework.data.domain.Sort;
+
 
 import lombok.AllArgsConstructor;
 
@@ -49,7 +51,7 @@ import lombok.AllArgsConstructor;
 @RestController
 @RequestMapping("pedidosImportacao")
 public class PedidoImportacaoController {
-    
+
     private PedidoImportacaoAssembler pedidoImportacaoAssembler;
     private PedidoImportacaoService pedidoImportacaoService;
     private UsuarioService usuarioService;
@@ -57,7 +59,7 @@ public class PedidoImportacaoController {
 
     @PostMapping
     public ResponseEntity<PedidoImportacaoResponseDTO> store(@AuthenticationPrincipal UserDetails usuarioLogado, @RequestBody @PedidoImportacaoStoreValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
-        
+
         var optionalUsuario = usuarioService.getUsuarioByLogin(usuarioLogado.getUsername());
 
         if (!optionalUsuario.isPresent())
@@ -65,7 +67,7 @@ public class PedidoImportacaoController {
 
         var usuario = optionalUsuario.get();
         int newSaldo = optionalUsuario.get().getCreditos() - requestDTO.getQuantidadeAnosSolicitados();
-        
+
         if (newSaldo < 0)
             throw new SaldoInsuficienteException("Saldo insuficiente para importação");
 
@@ -89,24 +91,32 @@ public class PedidoImportacaoController {
 
     @GetMapping
     public ResponseEntity<Page<PedidoImportacaoResponseDTO>> index(
-        @AuthenticationPrincipal UserDetails usuario,
-        @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
-        @RequestParam(name = "size", required = false, defaultValue = "30") Integer size,
-        @RequestParam(name = "nome", required = false) String nome,
-        @RequestParam(name = "cpf", required = false) String cpf,
-        @RequestParam(name = "status", required = false) EnumStatusImportacao status,
-        @RequestParam(name = "data_inicial", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataInicial,
-        @RequestParam(name = "tipo_erro", required = false) EnumErrorType tipoErro
+            @AuthenticationPrincipal UserDetails usuario,
+            @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+            @RequestParam(name = "size", required = false, defaultValue = "30") Integer size,
+            @RequestParam(name = "nome", required = false) String nome,
+            @RequestParam(name = "cpf", required = false) String cpf,
+            @RequestParam(name = "status", required = false) EnumStatusImportacao status,
+            @RequestParam(name = "data_inicial", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date dataInicial,
+            @RequestParam(name = "tipo_erro", required = false) EnumErrorType tipoErro,
+            @RequestParam(name = "sortDirection", required = false, defaultValue = "DESC") String sortDirection
     ) throws InvalidOperationException {
         var usuarioLogado = usuarioService.getUsuarioByLogin(usuario.getUsername());
-        if (!usuarioLogado.isPresent())
+        if (!usuarioLogado.isPresent()) {
             throw new InvalidOperationException("Usuário não identificado");
-            
-        Pageable pageable = PageRequest.of(page, size);
-        Page<PedidoImportacao> pedidoImportacaoPage = pedidoImportacaoService.getByFilters(usuarioLogado.get().getId(), nome, cpf, status, tipoErro, dataInicial, pageable);
+        }
+
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "created_at"));
+
+        Page<PedidoImportacao> pedidoImportacaoPage = pedidoImportacaoService.getByFilters(
+                usuarioLogado.get().getId(), nome, cpf, status, tipoErro, dataInicial, pageable
+        );
+
         Page<PedidoImportacaoResponseDTO> response = pedidoImportacaoAssembler.toPageDTO(pedidoImportacaoPage);
-        return new ResponseEntity<Page<PedidoImportacaoResponseDTO>>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
     @GetMapping("{uuid}")
     public ResponseEntity<PedidoImportacaoResponseDTO> show(@PathVariable String uuid) throws Exception {
@@ -119,8 +129,8 @@ public class PedidoImportacaoController {
         pedido.setSenha(passwordEncoder.decrypt(pedido.getSenha()));
         return new ResponseEntity<PedidoImportacaoResponseDTO>(pedidoImportacaoAssembler.toDto(optionalPedido.get()), HttpStatus.OK);
     }
-    
-    
+
+
     @PutMapping("{uuid}")
     public ResponseEntity<PedidoImportacaoResponseDTO> update(@PathVariable String uuid, @AuthenticationPrincipal UserDetails usuarioLogado, @RequestBody @PedidoImportacaoUpdateValid PedidoImportacaoRequestDTO requestDTO) throws Exception {
         var optionalPedido = pedidoImportacaoService.getByUuid(uuid);
@@ -137,14 +147,15 @@ public class PedidoImportacaoController {
             throw new InvalidOperationException("Usuário não encontrado!");
 
         var usuario = optionalUsuario.get();
-        var pedidoImportacao = optionalPedido.get();
-        int newSaldo = optionalUsuario.get().getCreditos() + (pedidoImportacao.getQuantidadeAnosSolicitados() - requestDTO.getQuantidadeAnosSolicitados());
-            
+        int newSaldo = optionalUsuario.get().getCreditos() - requestDTO.getQuantidadeAnosSolicitados();
+
         if (newSaldo < 0)
             throw new SaldoInsuficienteException("Saldo insuficiente para importação");
 
         usuario.setCreditos(newSaldo);
         usuario = usuarioService.save(usuario);
+
+        var pedidoImportacao = optionalPedido.get();
         pedidoImportacao = pedidoImportacaoAssembler.toUpdateEntity(requestDTO, pedidoImportacao);
         var dataAte = getPeriodoAte(pedidoImportacao.getMesDe(), pedidoImportacao.getAnoDe(), pedidoImportacao.getQuantidadeAnosSolicitados());
         pedidoImportacao.setMesAte(dataAte.getMonthValue());
@@ -166,9 +177,9 @@ public class PedidoImportacaoController {
     }
 
     @DeleteMapping("{uuid}")
-    public ResponseEntity<?> destroy(@AuthenticationPrincipal UserDetails usuarioLogado, @PathVariable String uuid) throws RegisterNotFoundException, InvalidOperationException {
+    public ResponseEntity<?> destroy(@PathVariable String uuid) throws RegisterNotFoundException, InvalidOperationException {
         var optionalPedido = pedidoImportacaoService.getByUuid(uuid);
-        
+
         if (!optionalPedido.isPresent())
             throw new RegisterNotFoundException("Pedido de importação não encontrado");
         else if (!optionalPedido.get().getStatus().equals(EnumStatusImportacao.NA_FILA)){
@@ -176,9 +187,6 @@ public class PedidoImportacaoController {
         }
 
         var pedidoImportacao = optionalPedido.get();
-        var usuario = usuarioService.getUsuarioByLogin(usuarioLogado.getUsername()).get();
-        usuario.setCreditos(usuario.getCreditos() + pedidoImportacao.getQuantidadeAnosSolicitados());
-        usuarioService.save(usuario);
         pedidoImportacaoService.logicalDelete(pedidoImportacao);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

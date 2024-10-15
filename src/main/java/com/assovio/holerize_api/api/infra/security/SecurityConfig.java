@@ -31,9 +31,11 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/auth/register").denyAll()
                 .requestMatchers(HttpMethod.POST, "/pedidosImportacao").hasAnyRole("USER")
                 .requestMatchers(HttpMethod.GET, "/pedidosImportacao").hasRole("USER")
+                .requestMatchers(HttpMethod.GET, "/usuario/*").hasRole("USER")
                 .requestMatchers(HttpMethod.GET, "/pedidosImportacao/*").hasRole("USER")
                 .requestMatchers(HttpMethod.PUT, "/pedidosImportacao/*").hasRole("USER")
                 .requestMatchers(HttpMethod.DELETE, "pedidosImportacao/*").hasRole("USER")
+
                 .anyRequest().hasRole("BOT")
                 // .anyRequest().permitAll()
             )
