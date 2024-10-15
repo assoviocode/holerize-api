@@ -87,6 +87,10 @@ public class PedidoExecucaoController {
         pedidoExecucao = pedidoExecucaoAssembler.toFinishEntity(requestDTO, pedidoExecucao);
         pedidoExecucao.setStatus(EnumStatusImportacao.CONCLUIDO);
         pedidoExecucao.getPedidoImportacao().setStatus(EnumStatusImportacao.CONCLUIDO);
+
+        if (pedidoExecucao.getPedidoImportacao().getQuantidadeAnosBaixados() > pedidoExecucao.getPedidoImportacao().getQuantidadeAnosSolicitados())
+            pedidoExecucao.getPedidoImportacao().setQuantidadeAnosBaixados(pedidoExecucao.getPedidoImportacao().getQuantidadeAnosSolicitados());
+
         int refund = pedidoExecucao.getPedidoImportacao().getQuantidadeAnosSolicitados()
                 - pedidoExecucao.getPedidoImportacao().getQuantidadeAnosBaixados();
 
