@@ -73,6 +73,8 @@ public class Usuario extends TimeStamp implements UserDetails {
             switch (pedidoImportacao.getStatus()) {
                 case NA_FILA:
                     creditoGasto += pedidoImportacao.getQuantidadeAnosSolicitados();
+                case EM_ANDAMENTO:
+                    creditoGasto += pedidoImportacao.getQuantidadeAnosSolicitados();
                 case CONCLUIDO:
                     creditoGasto += Objects.requireNonNullElse(pedidoImportacao.getQuantidadeAnosBaixados(), 0);
                 default:
