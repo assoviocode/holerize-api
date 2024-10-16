@@ -20,7 +20,6 @@ import com.assovio.holerize_api.domain.model.Enums.EnumErrorType;
 import com.assovio.holerize_api.domain.model.Enums.EnumStatusImportacao;
 import com.assovio.holerize_api.domain.service.PedidoExecucaoService;
 import com.assovio.holerize_api.domain.service.PedidoImportacaoService;
-import com.assovio.holerize_api.domain.service.UsuarioService;
 import com.assovio.holerize_api.domain.validator.pedidoexecucao.PedidoExecucaoErrorValid;
 import com.assovio.holerize_api.domain.validator.pedidoexecucao.PedidoExecucaoFinishValid;
 import com.assovio.holerize_api.domain.validator.pedidoexecucao.PedidoExecucaoStoreValid;
@@ -35,7 +34,6 @@ public class PedidoExecucaoController {
     private PedidoImportacaoService pedidoImportacaoService;
     private PedidoExecucaoService pedidoExecucaoService;
     private PedidoExecucaoAssembler pedidoExecucaoAssembler;
-    private UsuarioService usuarioService;
     private AESUtil passwordEncoder;
 
     @PostMapping
@@ -90,15 +88,6 @@ public class PedidoExecucaoController {
 
         if (pedidoExecucao.getPedidoImportacao().getQuantidadeAnosBaixados() > pedidoExecucao.getPedidoImportacao().getQuantidadeAnosSolicitados())
             pedidoExecucao.getPedidoImportacao().setQuantidadeAnosBaixados(pedidoExecucao.getPedidoImportacao().getQuantidadeAnosSolicitados());
-
-        int refund = pedidoExecucao.getPedidoImportacao().getQuantidadeAnosSolicitados()
-                - pedidoExecucao.getPedidoImportacao().getQuantidadeAnosBaixados();
-
-        if (refund > 0) {
-            pedidoExecucao.getPedidoImportacao().getUsuario()
-                    .setCreditos(pedidoExecucao.getPedidoImportacao().getUsuario().getCreditos() + refund);
-            usuarioService.save(pedidoExecucao.getPedidoImportacao().getUsuario());
-        }
 
         pedidoExecucao = pedidoExecucaoService.save(pedidoExecucao);
         var dto = pedidoExecucaoAssembler.toDto(pedidoExecucao);
