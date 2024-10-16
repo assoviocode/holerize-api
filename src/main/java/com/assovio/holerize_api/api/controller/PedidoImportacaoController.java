@@ -3,8 +3,10 @@ package com.assovio.holerize_api.api.controller;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.domain.Page;
@@ -39,6 +41,7 @@ import com.assovio.holerize_api.domain.model.Enums.EnumErrorType;
 import com.assovio.holerize_api.domain.model.Enums.EnumStatusImportacao;
 import com.assovio.holerize_api.domain.service.PedidoImportacaoService;
 import com.assovio.holerize_api.domain.service.UsuarioService;
+import com.assovio.holerize_api.domain.validator.pedidoimportacao.PedidoImportacaoStoreEmLoteValid;
 import com.assovio.holerize_api.domain.validator.pedidoimportacao.PedidoImportacaoStoreValid;
 import com.assovio.holerize_api.domain.validator.pedidoimportacao.PedidoImportacaoUpdateValid;
 
@@ -114,6 +117,49 @@ public class PedidoImportacaoController {
         Page<PedidoImportacaoResponseDTO> response = pedidoImportacaoAssembler.toPageDTO(pedidoImportacaoPage);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("lote")
+    public ResponseEntity<List<PedidoImportacaoResponseDTO>> storeEmLote(@AuthenticationPrincipal UserDetails usuarioLogado, @RequestBody @PedidoImportacaoStoreEmLoteValid List<PedidoImportacaoRequestDTO> listRequestDTO) throws Exception {
+        var optionalUsuario = usuarioService.getUsuarioByLogin(usuarioLogado.getUsername());
+
+        if (!optionalUsuario.isPresent())
+            throw new InvalidOperationException("Usuário não encontrado!");
+
+        var usuario = optionalUsuario.get();
+
+        int somaAnosSolicitados = 0;
+        for (PedidoImportacaoRequestDTO pedidoImportacaoRequestDTO : listRequestDTO) {
+            somaAnosSolicitados += pedidoImportacaoRequestDTO.getQuantidadeAnosSolicitados();
+        }
+
+        if (usuario.getCreditos() < somaAnosSolicitados) {
+            throw new SaldoInsuficienteException("Saldo insuficiente!");
+        }
+
+        var listNewPedidoImportacao = pedidoImportacaoAssembler.toCollectionStoreEntity(listRequestDTO);
+        var listStoredPedidoImportacao = new ArrayList<PedidoImportacao>();
+
+        for (PedidoImportacao newPedidoImportacao : listNewPedidoImportacao) {
+            var dataAte = getPeriodoAte(newPedidoImportacao.getMesDe(), newPedidoImportacao.getAnoDe(),
+            newPedidoImportacao.getQuantidadeAnosSolicitados());
+            newPedidoImportacao.setMesAte(dataAte.getMonthValue());
+            newPedidoImportacao.setAnoAte(dataAte.getYear());
+            newPedidoImportacao.setUsuario(usuario);
+            newPedidoImportacao.setSenha(passwordEncoder.encrypt(newPedidoImportacao.getSenha()));
+            Set<PedidoExecucao> setPedidosExecucao = new HashSet<>();
+            setPedidosExecucao.add(new PedidoExecucao(newPedidoImportacao));
+            newPedidoImportacao.setPedidosExecucao(setPedidosExecucao);
+            listStoredPedidoImportacao.add(pedidoImportacaoService.save(newPedidoImportacao));
+        }
+
+        var listDtos = pedidoImportacaoAssembler.toCollectionDto(listStoredPedidoImportacao);
+
+        for (PedidoImportacaoResponseDTO pedidoImportacaoResponseDTO : listDtos) {
+            pedidoImportacaoResponseDTO.setSenha(passwordEncoder.decrypt(pedidoImportacaoResponseDTO.getSenha()));
+        }
+
+        return new ResponseEntity<>(listDtos, HttpStatus.CREATED);
     }
 
     @GetMapping("{uuid}")

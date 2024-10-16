@@ -30,6 +30,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register").denyAll()
                         .requestMatchers(HttpMethod.POST, "/pedidosImportacao").hasAnyRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/pedidosImportacao/lote").hasAnyRole("USER")
                         .requestMatchers(HttpMethod.GET, "/pedidosImportacao").hasRole("USER")
                         .requestMatchers(HttpMethod.GET, "/usuario/*").hasRole("USER")
                         .requestMatchers(HttpMethod.GET, "/pedidosImportacao/*").hasRole("USER")

@@ -62,6 +62,10 @@ public class PedidoImportacaoAssembler {
         return entity;
     }
 
+    public List<PedidoImportacao> toCollectionStoreEntity(List<PedidoImportacaoRequestDTO> dtosList){
+        return dtosList.stream().map(this::toStoreEntity).collect(Collectors.toList());
+    }
+
     public List<PedidoImportacaoResponseDTO> toCollectionDto(List<PedidoImportacao> entityList){
         return entityList.stream().map(this::toDto).collect(Collectors.toList());
     }
