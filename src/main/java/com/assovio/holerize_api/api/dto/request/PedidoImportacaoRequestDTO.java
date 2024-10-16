@@ -42,6 +42,6 @@ public class PedidoImportacaoRequestDTO {
     private byte[] file;
 
     public void setCpf(String cpf){
-        this.cpf = cpf.replaceAll("[\\.\\-]", "").replaceFirst("^0+", "");
+        this.cpf = cpf.replaceAll("[^0-9]", "").replaceFirst("^0+", "");
     }
 }
