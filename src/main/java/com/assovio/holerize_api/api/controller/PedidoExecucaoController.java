@@ -48,6 +48,7 @@ public class PedidoExecucaoController {
 
         var pedidoExecucao = pedidoExecucaoAssembler.toStoreEntity(requestDTO);
         pedidoExecucao.setPedidoImportacao(optionalPedidoImportacao.get());
+        pedidoExecucao.getPedidoImportacao().setTotalVinculosBaixados(requestDTO.getTotalVinculosBaixados());
         pedidoExecucaoService.save(pedidoExecucao);
         var dto = pedidoExecucaoAssembler.toDto(pedidoExecucao);
         dto.setSenha(passwordEncoder.decrypt(dto.getSenha()));
